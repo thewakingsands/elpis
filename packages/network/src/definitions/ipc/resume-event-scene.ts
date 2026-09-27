@@ -24,6 +24,7 @@ const factory = createListStructFactory(
   FieldType.uint,
   4,
 )
+export const ResumeEventScene2 = factory(2)
 export const ResumeEventScene8 = factory(8)
 export const ResumeEventScene16 = factory(16)
 export const ResumeEventScene32 = factory(32)
