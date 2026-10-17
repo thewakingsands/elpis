@@ -47,22 +47,25 @@ async function request(url: string, cacheName: string, cacheTime = 3600e3) {
   return JSON.parse(body)
 }
 
-function generateOpcodeFile(
-  region: string,
-  version: string,
+/**
+ * Builds the map from opcode to entries for one opcode table.
+ * table: a version JSON, mapping packet names to hexadecimal opcode strings.
+ * opcodeTypes: the packet names to include; other names are skipped.
+ * catalog: the parsed packets.yaml, used for alias normalization and direction.
+ * Keys of the result are lowercase hexadecimal opcodes (such as '0x0346'), and entries keep the order of table.
+ */
+export function buildOpcodeEntries(
   table: Record<string, string>,
   opcodeTypes: string[],
   catalog: PacketCatalog,
-) {
-  const opcodes: Record<
-    string,
-    Array<{ type: string; size?: number; outgoing?: boolean }>
-  > = {}
+): Record<string, Array<{ type: string; outgoing?: boolean }>> {
+  const opcodes: Record<string, Array<{ type: string; outgoing?: boolean }>> =
+    {}
   for (const [name, _opcode] of Object.entries(
     normalizeOpcodeTable(table, catalog.aliases),
   )) {
     if (!name || !_opcode) {
-      console.log(`Invalid row: ${version}, ${name}, ${_opcode}`)
+      console.log(`Invalid row: ${name}, ${_opcode}`)
       continue
     }
 
@@ -82,6 +85,20 @@ function generateOpcodeFile(
         : undefined,
     })
   }
+  return opcodes
+}
+
+function generateOpcodeFile(
+  region: string,
+  version: string,
+  table: Record<string, string>,
+  opcodeTypes: string[],
+  catalog: PacketCatalog,
+) {
+  const opcodes: Record<
+    string,
+    Array<{ type: string; size?: number; outgoing?: boolean }>
+  > = buildOpcodeEntries(table, opcodeTypes, catalog)
 
   return `
 // biome-ignore-all lint/complexity/useSimpleNumberKeys: opcode maps are easier to audit in hexadecimal

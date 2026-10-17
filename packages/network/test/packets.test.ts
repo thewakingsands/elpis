@@ -16,17 +16,19 @@ import { ServerNotice } from '../src/definitions/ipc/server-notice'
 import { StatusEffectList3, StatusEffectListPlayerDouble } from '../src/definitions/ipc/status-effect-list'
 import { SystemLogMessage32, SystemLogMessage144 } from '../src/definitions/ipc/system-log-message'
 import { BattleTalk8, BalloonTalk8 } from '../src/definitions/ipc/talk'
-import { CN_7_56a } from '../src/opcode/cn-7.56a'
+import { NormalizedOpcode } from '../src/opcode'
 import type { StructConstructor } from '@ffcafe/elpis-struct'
+import { buildOpcodeEntries } from '../src/sync/opcode'
 import { normalizeOpcodeTable, parsePackets } from '../src/sync/packet-names'
 
-const { aliases, packets } = parsePackets(readFileSync(join(import.meta.dirname, 'fixtures/packets.yaml'), 'utf8'))
+const catalog = parsePackets(readFileSync(join(import.meta.dirname, 'fixtures/packets.yaml'), 'utf8'))
+const { aliases, packets } = catalog
 
 test('7.56a registry covers every upstream name after canonical alias normalization', () => {
   const input = JSON.parse(readFileSync(join(import.meta.dirname, 'fixtures/7.56a.json'), 'utf8'))
   const expected = normalizeOpcodeTable(input, aliases)
   const actual: Record<string, string> = {}
-  for (const [opcode, items] of Object.entries(CN_7_56a)) {
+  for (const [opcode, items] of Object.entries(buildOpcodeEntries(input, Object.values(NormalizedOpcode), catalog))) {
     for (const item of Array.isArray(items) ? items : [items]) {
       assert(item && typeof item !== 'string')
       const metadata = packets.get(item.type)

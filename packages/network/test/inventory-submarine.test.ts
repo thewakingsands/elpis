@@ -1,12 +1,22 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { test } from 'vitest'
 import {
   EventHandlerReturn, EventHandlerReturn4, Init, InventoryTransaction,
   InventoryTransactionFinish, ItemInfo, ItemLocation, PacketMap, Ping,
   SubmarineProgressionStatus, UpdateInventorySlot,
 } from '../src/definitions/ipc'
-import { CN_7_56a } from '../src/opcode/cn-7.56a'
 import { NormalizedOpcode } from '../src/opcode'
+import { buildOpcodeEntries } from '../src/sync/opcode'
+import { parsePackets } from '../src/sync/packet-names'
+
+const fixture = (name: string) => readFileSync(join(import.meta.dirname, 'fixtures', name), 'utf8')
+const opcodes = buildOpcodeEntries(
+  JSON.parse(fixture('7.56a.json')),
+  Object.values(NormalizedOpcode),
+  parsePackets(fixture('packets.yaml')),
+)
 
 test('submarine bitmaps cover all 160 points independently and preserve unknown tail', () => {
   const bytes = Buffer.alloc(48)
@@ -136,8 +146,8 @@ test('registered payloads reject truncation and accept zero values and trailing 
     assert.doesNotThrow(() => new Type(Buffer.alloc(length)))
     assert.doesNotThrow(() => new Type(Buffer.alloc(length + 8)))
   }
-  assert.deepEqual(CN_7_56a[0x0346], [{ type: NormalizedOpcode.Ping, outgoing: true }])
-  assert((CN_7_56a[0x025f] as {type: string; outgoing: boolean}[]).some(
+  assert.deepEqual(opcodes['0x0346'], [{ type: NormalizedOpcode.Ping, outgoing: true }])
+  assert(opcodes['0x025f'].some(
     entry => entry.type === 'EventHandlerReturn4' && entry.outgoing,
   ))
 })
