@@ -1,7 +1,4 @@
-import { Base } from '@/generate/lua/wireshark'
-import { FieldType } from '@/struct/field-type.enum'
-import { Struct } from '@/struct/struct'
-import { condition, field, format, ipcEnum } from '@/struct/struct.decorator'
+import { Base, FieldType, Struct, condition, field, format, ipcEnum } from '@ffcafe/elpis-struct'
 
 const ClientTriggerCommandId = {
   ToggleSheathe: 1,

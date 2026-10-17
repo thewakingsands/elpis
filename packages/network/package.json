@@ -1,0 +1,36 @@
+{
+  "name": "@ffcafe/elpis-network",
+  "version": "0.0.0",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "sync": "tsx src/sync/index.ts"
+  },
+  "dependencies": {
+    "@ffcafe/elpis-struct": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "tsdown": "^0.22.14",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5",
+    "yaml": "^2.9.1"
+  }
+}

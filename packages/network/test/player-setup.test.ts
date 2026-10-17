@@ -1,12 +1,9 @@
 import assert from 'node:assert/strict'
-import { test } from 'node:test'
+import { test } from 'vitest'
 import { PacketMap } from '../src/definitions/ipc'
 import { PlayerSetup } from '../src/definitions/ipc/player-setup'
 import { CN_7_56a } from '../src/opcode/cn-7.56a'
-import { FieldType } from '../src/struct/field-type.enum'
-import { fieldLength } from '../src/struct/helper'
-import type { Struct, StructConstructor } from '../src/struct/struct'
-import { getChildren, getFields } from '../src/struct/struct.decorator'
+import { FieldType, fieldLength, type Struct, type StructConstructor, getChildren, getFields } from '@ffcafe/elpis-struct'
 
 // All payloads are constructed from protocol boundaries, never from a capture.
 const minimumLength = 2951

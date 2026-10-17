@@ -1,6 +1,4 @@
-import { FieldType } from '@/struct/field-type.enum'
-import { Struct } from '@/struct/struct'
-import { child, field, format, ipcIf } from '@/struct/struct.decorator'
+import { FieldType, Struct, child, field, format, ipcIf } from '@ffcafe/elpis-struct'
 
 @ipcIf('id')
 export class LinkshellItem extends Struct {

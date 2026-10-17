@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { test } from 'node:test'
+import { test } from 'vitest'
 import { PlayerSpawn } from '../src/definitions/ipc/player-spawn'
 
 test('player spawn reads its own header and all variable-looking sections at fixed boundaries', () => {

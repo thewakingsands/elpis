@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { test } from 'node:test'
+import { test } from 'vitest'
 import { PacketMap } from '../src/definitions/ipc'
 import { ActionRequest } from '../src/definitions/ipc/action-request'
 import { CountdownCancel, CountdownInitiate } from '../src/definitions/ipc/countdown'
@@ -17,13 +17,13 @@ import { StatusEffectList3, StatusEffectListPlayerDouble } from '../src/definiti
 import { SystemLogMessage32, SystemLogMessage144 } from '../src/definitions/ipc/system-log-message'
 import { BattleTalk8, BalloonTalk8 } from '../src/definitions/ipc/talk'
 import { CN_7_56a } from '../src/opcode/cn-7.56a'
-import type { StructConstructor } from '../src/struct/struct'
+import type { StructConstructor } from '@ffcafe/elpis-struct'
 import { normalizeOpcodeTable, parsePackets } from '../src/sync/packet-names'
 
-const { aliases, packets } = parsePackets(readFileSync(join(__dirname, 'fixtures/packets.yaml'), 'utf8'))
+const { aliases, packets } = parsePackets(readFileSync(join(import.meta.dirname, 'fixtures/packets.yaml'), 'utf8'))
 
 test('7.56a registry covers every upstream name after canonical alias normalization', () => {
-  const input = JSON.parse(readFileSync(join(__dirname, 'fixtures/7.56a.json'), 'utf8'))
+  const input = JSON.parse(readFileSync(join(import.meta.dirname, 'fixtures/7.56a.json'), 'utf8'))
   const expected = normalizeOpcodeTable(input, aliases)
   const actual: Record<string, string> = {}
   for (const [opcode, items] of Object.entries(CN_7_56a)) {

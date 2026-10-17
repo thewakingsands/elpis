@@ -1,6 +1,4 @@
-import { FieldType } from '@/struct/field-type.enum'
-import { Struct } from '@/struct/struct'
-import { child, field, format } from '@/struct/struct.decorator'
+import { FieldType, Struct, child, field, format } from '@ffcafe/elpis-struct'
 
 class AirshipExplorationResultEntry extends Struct {
   static byteLength = 56

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { test } from 'node:test'
+import { test } from 'vitest'
 import { PacketMap } from '../src/definitions/ipc'
 import { DomanEnclaveState } from '../src/definitions/ipc/doman-enclave'
 import { NormalizedOpcode } from '../src/opcode'

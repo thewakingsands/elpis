@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { test } from 'node:test'
+import { test } from 'vitest'
 import { PacketMap } from '../src/definitions/ipc'
 import { NearCompletionAchievements } from '../src/definitions/ipc/achievement'
 import { NormalizedOpcode } from '../src/opcode'

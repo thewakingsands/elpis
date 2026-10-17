@@ -1,6 +1,4 @@
-import { FieldType } from '@/struct/field-type.enum'
-import { Struct } from '@/struct/struct'
-import { child, field } from '@/struct/struct.decorator'
+import { FieldType, Struct, child, field } from '@ffcafe/elpis-struct'
 import { Position } from './common/position'
 
 export class UpdatePositionHandler extends Struct {

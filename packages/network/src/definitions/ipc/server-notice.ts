@@ -1,6 +1,4 @@
-import { FieldType } from '@/struct/field-type.enum'
-import { Struct } from '@/struct/struct'
-import { field, format } from '@/struct/struct.decorator'
+import { FieldType, Struct, field, format } from '@ffcafe/elpis-struct'
 
 export class ServerNotice extends Struct {
   @field(FieldType.byte, 0)

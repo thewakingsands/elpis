@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { existsSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { test, type TestContext } from 'node:test'
+import { onTestFinished, test } from 'vitest'
 import { canonicalPacketName, loadPackets, normalizeOpcodeTable, packetsUrl, parsePackets } from '../src/sync/packet-names'
 
 function serverPackets(source: string) {
@@ -10,9 +10,9 @@ function serverPackets(source: string) {
 }
 const source = serverPackets('CompanyAirshipStatus:\n  FFXIVOpcodes: AirshipTimers\n  ACT: ACTAirship\n  OverlayPlugin: OverlayPluginAirship\n')
 
-function directory(t: TestContext) {
+function directory() {
   const path = mkdtempSync(join(tmpdir(), 'packet-catalog-'))
-  t.after(() => rmSync(path, { recursive: true, force: true }))
+  onTestFinished(() => rmSync(path, { recursive: true, force: true }))
   return path
 }
 
@@ -44,8 +44,8 @@ test('invalid YAML and ambiguous aliases are rejected', () => {
   ]) assert.throws(() => parsePackets(input))
 })
 
-test('remote catalog is fetched from the worker repository and reused from a fresh cache', async (t) => {
-  const cacheDirectory = directory(t)
+test('remote catalog is fetched from the worker repository and reused from a fresh cache', async () => {
+  const cacheDirectory = directory()
   let calls = 0
   const fetcher: typeof fetch = async (url) => {
     calls++
@@ -61,8 +61,8 @@ test('remote catalog is fetched from the worker repository and reused from a fre
   assert.equal(calls, 1)
 })
 
-test('expired and invalid caches refresh both metadata and mappings', async (t) => {
-  const cacheDirectory = directory(t)
+test('expired and invalid caches refresh both metadata and mappings', async () => {
+  const cacheDirectory = directory()
   const cacheFile = join(cacheDirectory, 'packets.cache')
   const updated = 'ClientLobbyIpc:\n  direction: client-to-server\n  packets:\n    NewProjectName:\n      FFXIVOpcodes: NewSourceName\n'
   for (const previous of [source, 'Packet: [']) {
@@ -81,8 +81,8 @@ test('expired and invalid caches refresh both metadata and mappings', async (t) 
   }
 })
 
-test('failed requests or invalid remote catalogs do not populate the cache', async (t) => {
-  const cacheDirectory = directory(t)
+test('failed requests or invalid remote catalogs do not populate the cache', async () => {
+  const cacheDirectory = directory()
   for (const fetcher of [
     async () => new Response('missing', { status: 404 }),
     async () => new Response('Packet: []'),
@@ -93,8 +93,8 @@ test('failed requests or invalid remote catalogs do not populate the cache', asy
   }
 })
 
-test('a local packets file is reloaded without fetching or consulting the remote cache', async (t) => {
-  const cacheDirectory = directory(t)
+test('a local packets file is reloaded without fetching or consulting the remote cache', async () => {
+  const cacheDirectory = directory()
   const file = join(cacheDirectory, 'packets.yaml')
   writeFileSync(join(cacheDirectory, 'packets.cache'), source)
   const fetcher: typeof fetch = async () => { throw new Error('Must not fetch') }

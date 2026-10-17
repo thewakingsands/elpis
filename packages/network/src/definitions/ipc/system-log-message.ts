@@ -1,10 +1,8 @@
-import { FieldType } from '@/struct/field-type.enum'
-import { Struct } from '@/struct/struct'
-import { field, format, ipcEnum } from '@/struct/struct.decorator'
+import { FieldType, Struct, type StructConstructor, field, format, ipcEnum } from '@ffcafe/elpis-struct'
 import { EventEnums, eventField } from './common/event'
 
 @ipcEnum(EventEnums)
-class SystemLogMessageHeader extends Struct {
+export class SystemLogMessageHeader extends Struct {
   static byteLength = 12
 
   @field(FieldType.uint, 0, 4)
@@ -22,7 +20,18 @@ class SystemLogMessageHeader extends Struct {
   padding!: Buffer
 }
 
-function createSystemLogMessage(paramCapacity: number, byteLength: number) {
+export interface SystemLogMessageBody extends SystemLogMessageHeader {
+  readonly header: Pick<
+    SystemLogMessageHeader,
+    'eventId' | 'logMessageId' | 'paramCount' | 'padding'
+  >
+  readonly entities: number[]
+}
+
+function createSystemLogMessage(
+  paramCapacity: number,
+  byteLength: number,
+): StructConstructor<SystemLogMessageBody> {
   class Message extends SystemLogMessageHeader {
     static byteLength = byteLength
 

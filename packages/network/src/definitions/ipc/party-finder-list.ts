@@ -1,14 +1,4 @@
-import { Base } from '@/generate/lua/wireshark'
-import { FieldType } from '@/struct/field-type.enum'
-import { Struct } from '@/struct/struct'
-import {
-  child,
-  condition,
-  field,
-  format,
-  ipcEnum,
-  ipcIf,
-} from '@/struct/struct.decorator'
+import { Base, FieldType, Struct, child, condition, field, format, ipcEnum, ipcIf } from '@ffcafe/elpis-struct'
 
 @ipcIf('listingId')
 @ipcEnum('PartyFinderCategory', {

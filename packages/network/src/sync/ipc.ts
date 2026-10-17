@@ -48,8 +48,8 @@ function generateIPCIndexFile(
   commonFiles: string[],
 ) {
   return `
-import { NormalizedOpcode } from '@/opcode'
-import type { StructConstructor } from '@/struct/struct'
+import { NormalizedOpcode } from '../../opcode'
+import type { StructConstructor } from '@ffcafe/elpis-struct'
 ${ipcs
   .map((item) => `import { ${item.exports.join(', ')} } from './${item.file}'`)
   .join('\n')}

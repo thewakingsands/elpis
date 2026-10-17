@@ -21,7 +21,7 @@ const urls = {
     `https://raw.githubusercontent.com/zhyupe/ffxiv-opcode-worker/master/json/${version}.json`,
 }
 
-const cacheDir = join(__dirname, 'cache')
+const cacheDir = join(import.meta.dirname, 'cache')
 
 async function request(url: string, cacheName: string, cacheTime = 3600e3) {
   const cacheFile = join(cacheDir, `${cacheName}.cache`)

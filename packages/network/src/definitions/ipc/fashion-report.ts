@@ -1,6 +1,4 @@
-import { FieldType } from '@/struct/field-type.enum'
-import { Struct } from '@/struct/struct'
-import { child, field, format, ipcEnum } from '@/struct/struct.decorator'
+import { FieldType, Struct, child, field, format, ipcEnum } from '@ffcafe/elpis-struct'
 
 export class FashionReport extends Struct {
   @field(FieldType.byte, 0)

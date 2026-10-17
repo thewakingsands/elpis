@@ -82,7 +82,7 @@ export function parsePackets(source: string): PacketCatalog {
 
 export async function loadPackets({
   file,
-  cacheDirectory = join(__dirname, 'cache'),
+  cacheDirectory = join(import.meta.dirname, 'cache'),
   fetcher = fetch,
 }: {
   file?: string

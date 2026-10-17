@@ -1,7 +1,4 @@
-import { Base } from '@/generate/lua/wireshark'
-import { FieldType } from '@/struct/field-type.enum'
-import { Struct } from '@/struct/struct'
-import { child, field, format } from '@/struct/struct.decorator'
+import { Base, FieldType, Struct, child, field, format } from '@ffcafe/elpis-struct'
 
 export class FellowshipMemberItem extends Struct {
   static byteLength = 56

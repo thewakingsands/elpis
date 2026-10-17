@@ -1,6 +1,4 @@
-import { FieldType } from '@/struct/field-type.enum'
-import { Struct } from '@/struct/struct'
-import { field, format } from '@/struct/struct.decorator'
+import { FieldType, Struct, field, format } from '@ffcafe/elpis-struct'
 
 // Eight crafting jobs in ClassJob order; wire values are hundredths of a level.
 export class DesynthesisLevels extends Struct {

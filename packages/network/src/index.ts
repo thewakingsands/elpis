@@ -1,3 +1,5 @@
 export * from './definitions/ipc'
 export * from './definitions/ipc-type/enum'
 export * from './opcode'
+export type { OpcodeItem } from './opcode/opcode-item.type'
+export type { ParsableOpcode } from './opcode/parsable-opcode.type'

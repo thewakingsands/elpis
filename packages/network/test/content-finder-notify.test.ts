@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { test } from 'node:test'
+import { test } from 'vitest'
 import { ContentFinderNotify, PacketMap } from '../src/definitions/ipc'
 import { NormalizedOpcode } from '../src/opcode'
 

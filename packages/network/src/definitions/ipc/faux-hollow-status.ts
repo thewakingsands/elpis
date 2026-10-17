@@ -1,6 +1,4 @@
-import { FieldType } from '@/struct/field-type.enum'
-import { Struct } from '@/struct/struct'
-import { child, field, format } from '@/struct/struct.decorator'
+import { FieldType, Struct, child, field, format } from '@ffcafe/elpis-struct'
 import { FauxHollowBlock } from './common/faux-hollow'
 
 export class FauxHollowStatus extends Struct {

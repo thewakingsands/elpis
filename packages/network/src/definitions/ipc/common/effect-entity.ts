@@ -1,6 +1,4 @@
-import { FieldType } from '@/struct/field-type.enum'
-import { Struct } from '@/struct/struct'
-import { field, format, ipcEnum } from '@/struct/struct.decorator'
+import { FieldType, Struct, field, format, ipcEnum } from '@ffcafe/elpis-struct'
 import { ActionEffectType } from './action-effect-type.enum'
 import { ActionHitSeverityType } from './action-hit-severity-type.enum'
 

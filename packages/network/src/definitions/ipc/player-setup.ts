@@ -1,7 +1,4 @@
-import { Base } from '@/generate/lua/wireshark'
-import { FieldType } from '@/struct/field-type.enum'
-import { Struct } from '@/struct/struct'
-import { child, field, format } from '@/struct/struct.decorator'
+import { Base, FieldType, Struct, child, field, format } from '@ffcafe/elpis-struct'
 
 // PlayerSetup aggregates several client structures; it is not a PlayerState memory dump.
 // The section classes below group contiguous wire ranges. Offsets in each section are

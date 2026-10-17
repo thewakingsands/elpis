@@ -1,6 +1,4 @@
-import { FieldType } from '@/struct/field-type.enum'
-import { Struct, type StructConstructor } from '@/struct/struct'
-import { child, field } from '@/struct/struct.decorator'
+import { FieldType, Struct, type StructConstructor, child, field } from '@ffcafe/elpis-struct'
 
 export function listStructFactory(
   headerType: StructConstructor,
