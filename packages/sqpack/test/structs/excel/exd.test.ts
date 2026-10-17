@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { Language } from '@ffcafe/ixion-utils'
+import { Language } from '../../../src/language'
 import { SmartBuffer } from 'smart-buffer'
 import { describe, expect, it } from 'vitest'
 import {

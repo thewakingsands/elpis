@@ -1,4 +1,4 @@
-import type { Language } from '@ffcafe/ixion-utils'
+import type { Language } from '../../language'
 import { SmartBuffer } from 'smart-buffer'
 
 export enum ExcelVariant {

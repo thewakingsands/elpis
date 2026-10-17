@@ -1,4 +1,4 @@
-import { Language, languageToCodeMap } from '@ffcafe/ixion-utils'
+import { Language, languageToCodeMap } from '../../language'
 import type { SmartBuffer } from 'smart-buffer'
 
 export function getExdPath(sheet: string, startId: number, language: Language) {

@@ -1,17 +1,17 @@
-# @ffcafe/ixion-sqpack
+# @ffcafe/elpis-sqpack
 
 A TypeScript library for reading SqPack files used in Final Fantasy XIV.
 
 ## Installation
 
 ```bash
-pnpm add @ffcafe/ixion-sqpack
+pnpm add @ffcafe/elpis-sqpack
 ```
 
 ## Usage
 
 ```typescript
-import { SqPackReader } from '@ffcafe/ixion-sqpack';
+import { SqPackReader } from '@ffcafe/elpis-sqpack';
 
 // Open a SqPack repository
 const reader = await SqPackReader.open({
@@ -63,7 +63,7 @@ Based on the [XIV Dev SqPack documentation](https://xiv.dev/data-files/sqpack#re
 ## Local game resources and LGB
 
 ```ts
-import { GameSqPackReader, resolveSqPackPrefix, readLgbFile } from '@ffcafe/ixion-sqpack'
+import { GameSqPackReader, resolveSqPackPrefix, readLgbFile } from '@ffcafe/elpis-sqpack'
 
 const resource = 'bg/ffxiv/sea_s1/twn/s1t1/level/bg.lgb'
 const prefix = await resolveSqPackPrefix('/path/to/game', resource)

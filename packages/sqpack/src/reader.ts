@@ -21,7 +21,7 @@ import {
 } from './structs/texture'
 import { calculateIndex2Hash, calculateIndexHash } from './utils/hash'
 
-const debug = $debug('ixion:sqpack:reader')
+const debug = $debug('elpis:sqpack:reader')
 const uncompressedChunk = 32000
 
 export interface SqPackFileReader {

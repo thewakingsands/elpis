@@ -15,7 +15,7 @@ function fixture(type: FileType) {
   const close = vi.fn(async () => {})
   const reader = new SqPackReader({
     prefix: 'fixture',
-    indexEntries: new Map([[calculateIndexHash(path), { dataFileId: 0, offset: 0 }]]),
+    indexEntries: new Map([[calculateIndexHash(path), { dataFileId: 0, offset: 0, isSynonym: false }]]),
     open: async () => ({ read, readFile: async () => header, close }),
   })
   return { reader, read, close }

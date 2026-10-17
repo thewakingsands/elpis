@@ -1,37 +1,35 @@
 {
-  "name": "@ffcafe/ixion-sqpack",
-  "version": "0.0.1",
+  "name": "@ffcafe/elpis-sqpack",
+  "version": "0.0.0",
+  "private": true,
+  "license": "GPL-3.0-only",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
   },
-  "files": [
-    "dist"
-  ],
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "start": "tsx src/index.ts",
-    "lint": "biome check --write src",
-    "test": "vitest"
-  },
-  "devDependencies": {
-    "@types/debug": "catalog:",
-    "@types/node": "catalog:",
-    "@vitest/coverage-v8": "catalog:",
-    "config": "workspace:*",
-    "tsup": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
-    "@ffcafe/ixion-utils": "workspace:*",
-    "debug": "catalog:",
+    "debug": "^4.4.1",
     "smart-buffer": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.12",
+    "@types/node": "^24.19.2",
+    "tsdown": "^0.22.14",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
   }
 }
