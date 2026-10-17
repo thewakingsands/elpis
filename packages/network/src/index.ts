@@ -1,4 +1,5 @@
 export * from './definitions/ipc'
+export type { SystemLogMessageBody } from './definitions/ipc/system-log-message'
 export * from './definitions/ipc-type/enum'
 export * from './opcode'
 export type { OpcodeItem } from './opcode/opcode-item.type'

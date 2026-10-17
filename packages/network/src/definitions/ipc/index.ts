@@ -222,6 +222,7 @@ import {
   SystemLogMessage48,
   SystemLogMessage80,
   SystemLogMessage144,
+  SystemLogMessageHeader,
 } from './system-log-message'
 import {
   BalloonTalk2,
@@ -680,6 +681,7 @@ export {
   SystemLogMessage48,
   SystemLogMessage80,
   SystemLogMessage144,
+  SystemLogMessageHeader,
   TitleList,
   TreasureInfo,
   TreasureShiftingWheelResult,
