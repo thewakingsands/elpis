@@ -1,5 +1,5 @@
-import type { Language } from '../../language'
 import { SmartBuffer } from 'smart-buffer'
+import type { Language } from '../../language'
 
 export enum ExcelVariant {
   Unknown = 0,

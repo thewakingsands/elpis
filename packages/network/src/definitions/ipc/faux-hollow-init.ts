@@ -1,4 +1,4 @@
-import { FieldType, Struct, child, field } from '@ffcafe/elpis-struct'
+import { child, FieldType, field, Struct } from '@ffcafe/elpis-struct'
 import { FauxHollowBlock } from './common/faux-hollow'
 
 export class FauxHollowInit extends Struct {

@@ -1,4 +1,4 @@
-import { Base, FieldType, Struct, field, format } from '@ffcafe/elpis-struct'
+import { Base, FieldType, field, format, Struct } from '@ffcafe/elpis-struct'
 
 export class RetainerInformation extends Struct {
   @field(FieldType.biguint, 0)

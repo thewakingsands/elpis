@@ -1,4 +1,4 @@
-import { type IPCFieldCondition, condition } from '@ffcafe/elpis-struct'
+import { condition, type IPCFieldCondition } from '@ffcafe/elpis-struct'
 
 export type ConditionItem<Fields extends string> = Partial<
   Record<Fields, Omit<IPCFieldCondition, 'value'>>

@@ -1,4 +1,4 @@
-import { FieldType, Struct, field } from '@ffcafe/elpis-struct'
+import { FieldType, field, Struct } from '@ffcafe/elpis-struct'
 
 export class ActionRequest extends Struct {
   static byteLength = 40

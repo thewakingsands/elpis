@@ -1,4 +1,4 @@
-import { FieldType, Struct, child, field } from '@ffcafe/elpis-struct'
+import { child, FieldType, field, Struct } from '@ffcafe/elpis-struct'
 import { Position } from './common/position'
 
 export class UpdatePositionHandler extends Struct {

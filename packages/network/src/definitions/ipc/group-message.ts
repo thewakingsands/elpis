@@ -1,4 +1,11 @@
-import { Base, FieldType, Struct, field, format, ipcEnum } from '@ffcafe/elpis-struct'
+import {
+  Base,
+  FieldType,
+  field,
+  format,
+  ipcEnum,
+  Struct,
+} from '@ffcafe/elpis-struct'
 
 const GroupMessageType = {
   Linkshell: 2,

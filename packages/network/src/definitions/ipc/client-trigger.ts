@@ -1,4 +1,12 @@
-import { Base, FieldType, Struct, condition, field, format, ipcEnum } from '@ffcafe/elpis-struct'
+import {
+  Base,
+  condition,
+  FieldType,
+  field,
+  format,
+  ipcEnum,
+  Struct,
+} from '@ffcafe/elpis-struct'
 
 const ClientTriggerCommandId = {
   ToggleSheathe: 1,

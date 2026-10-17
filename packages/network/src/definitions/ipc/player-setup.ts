@@ -1,4 +1,11 @@
-import { Base, FieldType, Struct, child, field, format } from '@ffcafe/elpis-struct'
+import {
+  Base,
+  child,
+  FieldType,
+  field,
+  format,
+  Struct,
+} from '@ffcafe/elpis-struct'
 
 // PlayerSetup aggregates several client structures; it is not a PlayerState memory dump.
 // The section classes below group contiguous wire ranges. Offsets in each section are

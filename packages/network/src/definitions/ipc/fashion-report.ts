@@ -1,4 +1,11 @@
-import { FieldType, Struct, child, field, format, ipcEnum } from '@ffcafe/elpis-struct'
+import {
+  child,
+  FieldType,
+  field,
+  format,
+  ipcEnum,
+  Struct,
+} from '@ffcafe/elpis-struct'
 
 export class FashionReport extends Struct {
   @field(FieldType.byte, 0)

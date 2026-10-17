@@ -1,4 +1,4 @@
-import { FieldType, Struct, field } from '@ffcafe/elpis-struct'
+import { FieldType, field, Struct } from '@ffcafe/elpis-struct'
 
 export class Ping extends Struct {
   // Low 32 bits of the client's monotonic millisecond clock.

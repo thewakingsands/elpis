@@ -1,4 +1,4 @@
-import { FieldType, Struct, field, format } from '@ffcafe/elpis-struct'
+import { FieldType, field, format, Struct } from '@ffcafe/elpis-struct'
 
 export class ContentFinderTriggerRouttle extends Struct {
   @field(FieldType.uint, 0, 2)

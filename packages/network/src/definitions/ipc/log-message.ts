@@ -1,4 +1,4 @@
-import { FieldType, Struct, field } from '@ffcafe/elpis-struct'
+import { FieldType, field, Struct } from '@ffcafe/elpis-struct'
 
 export class LogMessage extends Struct {
   @field(FieldType.bytes, 0, 16)

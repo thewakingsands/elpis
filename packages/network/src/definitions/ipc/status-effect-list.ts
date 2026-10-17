@@ -1,4 +1,4 @@
-import { FieldType, Struct, child, field, format } from '@ffcafe/elpis-struct'
+import { child, FieldType, field, format, Struct } from '@ffcafe/elpis-struct'
 import { StatusEffect } from './common/status-effect'
 
 export class StatusEffectList extends Struct {

@@ -1,5 +1,5 @@
-import { Language, languageToCodeMap } from '../../language'
 import type { SmartBuffer } from 'smart-buffer'
+import { Language, languageToCodeMap } from '../../language'
 
 export function getExdPath(sheet: string, startId: number, language: Language) {
   if (language === Language.None) {

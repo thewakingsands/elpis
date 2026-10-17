@@ -1,4 +1,4 @@
-import { FieldType, Struct, field, format } from '@ffcafe/elpis-struct'
+import { FieldType, field, format, Struct } from '@ffcafe/elpis-struct'
 
 export class DomanEnclaveState extends Struct {
   // Index into DomanEnclaveManager's milestones, not a DomaStoryProgress row ID.

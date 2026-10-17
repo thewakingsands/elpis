@@ -1,4 +1,11 @@
-import { FieldType, Struct, type StructConstructor, field, format, ipcEnum } from '@ffcafe/elpis-struct'
+import {
+  FieldType,
+  field,
+  format,
+  ipcEnum,
+  Struct,
+  type StructConstructor,
+} from '@ffcafe/elpis-struct'
 import { EventEnums, eventField } from './common/event'
 
 @ipcEnum(EventEnums)

@@ -1,4 +1,4 @@
-import { FieldType, Struct, child, field } from '@ffcafe/elpis-struct'
+import { child, FieldType, field, Struct } from '@ffcafe/elpis-struct'
 
 export class PlaceFieldMarkerPreset extends Struct {
   static byteLength = 104

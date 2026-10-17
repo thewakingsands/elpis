@@ -1,4 +1,13 @@
-import { Base, FieldType, Struct, child, field, format, ipcEnum, ipcIf } from '@ffcafe/elpis-struct'
+import {
+  Base,
+  child,
+  FieldType,
+  field,
+  format,
+  ipcEnum,
+  ipcIf,
+  Struct,
+} from '@ffcafe/elpis-struct'
 
 @ipcIf('content')
 export class ContentFinderNotifyInstance extends Struct {

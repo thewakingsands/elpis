@@ -1,4 +1,11 @@
-import { FieldType, Struct, child, field, format, ipcEnum } from '@ffcafe/elpis-struct'
+import {
+  child,
+  FieldType,
+  field,
+  format,
+  ipcEnum,
+  Struct,
+} from '@ffcafe/elpis-struct'
 
 export class Achievement extends Struct {
   // Set bit N means Achievement row N is complete; points are computed by the UI.

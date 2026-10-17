@@ -1,4 +1,11 @@
-import { FieldType, Struct, child, field, format, ipcIf } from '@ffcafe/elpis-struct'
+import {
+  child,
+  FieldType,
+  field,
+  format,
+  ipcIf,
+  Struct,
+} from '@ffcafe/elpis-struct'
 
 @ipcIf('id')
 export class LinkshellItem extends Struct {

@@ -1,4 +1,4 @@
-import { FieldType, Struct, child, field } from '@ffcafe/elpis-struct'
+import { child, FieldType, field, Struct } from '@ffcafe/elpis-struct'
 
 export class MapMarker2 extends Struct {
   @field(FieldType.byte, 0)

@@ -1,4 +1,11 @@
-import { Base, FieldType, Struct, child, field, format } from '@ffcafe/elpis-struct'
+import {
+  Base,
+  child,
+  FieldType,
+  field,
+  format,
+  Struct,
+} from '@ffcafe/elpis-struct'
 import { EffectEntity } from './common/effect-entity'
 import { EffectHeader } from './common/effect-header'
 

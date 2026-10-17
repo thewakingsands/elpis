@@ -1,6 +1,6 @@
 import 'reflect-metadata'
-import type { IPCFieldCondition, IPCFieldFormat } from './format'
 import type { FieldType } from './field-type.enum'
+import type { IPCFieldCondition, IPCFieldFormat } from './format'
 import { fieldLength } from './helper'
 import type { Struct, StructConstructor } from './struct'
 

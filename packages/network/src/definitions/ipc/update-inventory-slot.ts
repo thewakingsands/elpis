@@ -1,4 +1,4 @@
-import { FieldType, Struct, field, format, ipcEnum } from '@ffcafe/elpis-struct'
+import { FieldType, field, format, ipcEnum, Struct } from '@ffcafe/elpis-struct'
 import { ItemLocation } from './common/inventory'
 
 const ItemQuality = {

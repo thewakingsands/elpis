@@ -1,4 +1,14 @@
-import { Base, FieldType, Struct, child, condition, field, format, ipcEnum, ipcIf } from '@ffcafe/elpis-struct'
+import {
+  Base,
+  child,
+  condition,
+  FieldType,
+  field,
+  format,
+  ipcEnum,
+  ipcIf,
+  Struct,
+} from '@ffcafe/elpis-struct'
 
 @ipcIf('listingId')
 @ipcEnum('PartyFinderCategory', {

@@ -1,4 +1,4 @@
-import { FieldType, Struct, child, field, format } from '@ffcafe/elpis-struct'
+import { child, FieldType, field, format, Struct } from '@ffcafe/elpis-struct'
 
 export class CompanyAirshipStatusItem extends Struct {
   static byteLength = 36

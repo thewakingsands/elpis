@@ -59,8 +59,10 @@ export function buildOpcodeEntries(
   opcodeTypes: string[],
   catalog: PacketCatalog,
 ): Record<string, Array<{ type: string; outgoing?: boolean }>> {
-  const opcodes: Record<string, Array<{ type: string; outgoing?: boolean }>> =
-    {}
+  const opcodes: Record<
+    string,
+    Array<{ type: string; outgoing?: boolean }>
+  > = {}
   for (const [name, _opcode] of Object.entries(
     normalizeOpcodeTable(table, catalog.aliases),
   )) {

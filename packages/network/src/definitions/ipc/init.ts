@@ -1,4 +1,4 @@
-import { FieldType, Struct, field } from '@ffcafe/elpis-struct'
+import { FieldType, field, Struct } from '@ffcafe/elpis-struct'
 
 export class Init extends Struct {
   // The network loop subtracts this value from its monotonic clock to update RTT.

@@ -1,4 +1,4 @@
-import { FieldType, Struct, field, format } from '@ffcafe/elpis-struct'
+import { FieldType, field, format, Struct } from '@ffcafe/elpis-struct'
 
 export class GardenStatus extends Struct {
   @field(FieldType.byte, 0)
