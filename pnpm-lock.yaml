@@ -195,6 +195,28 @@ importers:
         specifier: ^2.9.1
         version: 2.9.1
 
+  packages/sestring:
+    dependencies:
+      debug:
+        specifier: ^4.4.1
+        version: 4.4.3
+    devDependencies:
+      '@types/debug':
+        specifier: ^4.1.12
+        version: 4.1.13
+      '@types/node':
+        specifier: ^24.19.2
+        version: 24.19.2
+      tsdown:
+        specifier: ^0.22.14
+        version: 0.22.14(tsx@4.23.15)(typescript@6.0.3)
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: ^4.1.5
+        version: 4.1.12(@types/node@24.19.2)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.1))
+
   packages/sqpack:
     dependencies:
       debug:

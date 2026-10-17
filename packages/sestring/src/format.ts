@@ -11,7 +11,7 @@ import {
 } from './interface'
 import { Type } from './type'
 
-const debug = $debug('ixion:exd:sestring:format')
+const debug = $debug('elpis:sestring:format')
 
 const unknownTagSet = new Set<number>()
 const reportUnknownTag = (tag: number) => {

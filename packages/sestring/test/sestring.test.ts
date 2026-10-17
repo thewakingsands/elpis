@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { formatSeString, parseSeString, Type } from '../src/sestring'
-import { ExpressionType, ParameterType } from '../src/sestring/interface'
-import { parseExpressions } from '../src/sestring/reader'
+import { formatSeString, parseSeString, Type } from '../src'
+import { ExpressionType, ParameterType } from '../src/interface'
+import { parseExpressions } from '../src/reader'
 
 describe('expressions', () => {
   it('should parse simple integer', () => {
