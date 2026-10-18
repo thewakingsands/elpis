@@ -75,3 +75,40 @@ node packages/memory/scripts/verify-signatures.mjs --addon <addon package direct
 ```
 
 `--addon` is the directory of a Node addon package that exports `ProcessMemory` and `findGameProcesses`.
+
+## Publishing to npm
+
+All five packages use the same version. Update their `version` fields together,
+run the checks, and push the version commit to `main`. Create a GitHub Release
+with a matching `vX.Y.Z` tag (or `vX.Y.Z-rc.1` for a prerelease). The published
+Release triggers `publish.yml`; ordinary pushes only run CI. Stable versions use
+`latest`, prerelease versions use `next`. Build metadata in versions is not supported.
+
+The workflow validates the source, builds and tests all packages, packs with pnpm
+(to resolve `workspace:` and `catalog:`), then publishes the tarballs with npm
+OIDC and provenance. It skips versions already present on the official npm
+registry, so rerun a failed workflow to finish a partially successful release.
+Registry errors abort before any package is published. Publish jobs are serialized.
+
+For a validation-only run, open **Actions → Publish npm packages → Run workflow**,
+select `main`, and leave **dry-run** checked. Clearing it publishes missing versions
+from main. No versions or Git tags are created automatically.
+
+Each package must have an npm trusted publisher configured as:
+
+- Provider: GitHub Actions
+- Repository: `thewakingsands/elpis`
+- Workflow file: `publish.yml`
+- Environment: leave empty
+- Allowed action: publish
+
+With an authenticated npm CLI and 2FA, inspect `npm trust list <package>` and add
+missing trust with:
+
+```bash
+npm trust github <package> --repo thewakingsands/elpis --file publish.yml --allow-publish --registry=https://registry.npmjs.org/
+```
+
+Use the official registry for trust queries too. No `NPM_TOKEN` secret is needed.
+The workflow uses Node 24 and npm 12.2.0 on a GitHub-hosted runner. Existing trusted
+publishers and account security settings do not need to be removed or relaxed.

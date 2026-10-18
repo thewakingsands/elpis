@@ -1,0 +1,55 @@
+name: Publish npm packages
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: Validate packages without publishing
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'thewakingsands/elpis'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
+      ARTIFACTS: ${{ runner.temp }}/elpis-packages
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run }}
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: npm install --global npm@12.2.0 --registry=https://registry.npmjs.org/
+      - name: Validate release source
+        run: node scripts/publish.mjs --check-source
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm check:dist
+      - run: node --test scripts/publish.test.mjs
+      - name: Pack workspace dependencies and catalogs
+        run: pnpm -r pack --pack-destination "$ARTIFACTS"
+      - name: Publish missing versions using OIDC
+        run: node scripts/publish.mjs
