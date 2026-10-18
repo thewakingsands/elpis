@@ -3,3 +3,11 @@ packages:
 
 allowBuilds:
   esbuild: true
+
+catalog:
+  '@types/debug': ^4.1.12
+  '@types/node': ^24.19.2
+  debug: ^4.4.1
+  tsdown: ^0.22.14
+  typescript: ^6.0.3
+  vitest: ^4.1.5
