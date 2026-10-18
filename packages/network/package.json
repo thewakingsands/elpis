@@ -1,7 +1,6 @@
 {
   "name": "@ffcafe/elpis-network",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
   "license": "GPL-3.0-only",
   "type": "module",
   "engines": {
@@ -43,5 +42,13 @@
     "typescript": "catalog:",
     "vitest": "catalog:",
     "yaml": "^2.9.1"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thewakingsands/elpis.git"
   }
 }
