@@ -26,7 +26,6 @@ jobs:
       id-token: write
     env:
       NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
-      ARTIFACTS: ${{ runner.temp }}/elpis-packages
       DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run }}
       RELEASE_TAG: ${{ github.event.release.tag_name }}
     steps:
@@ -50,6 +49,10 @@ jobs:
       - run: pnpm check:dist
       - run: node --test scripts/publish.test.mjs
       - name: Pack workspace dependencies and catalogs
+        env:
+          ARTIFACTS: ${{ runner.temp }}/elpis-packages
         run: pnpm -r pack --pack-destination "$ARTIFACTS"
       - name: Publish missing versions using OIDC
+        env:
+          ARTIFACTS: ${{ runner.temp }}/elpis-packages
         run: node scripts/publish.mjs
