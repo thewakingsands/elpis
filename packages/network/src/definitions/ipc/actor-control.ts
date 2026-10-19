@@ -33,6 +33,16 @@ const actorControlField = createConditionFactory<
     data2: { label: 'Value' },
     data3: { label: 'ActorId', base: Base.HEX },
   },
+  [ActorControlType.HealOverTime]: {
+    data0: { label: 'Status', db: 'Status' },
+    data1: { label: 'Value' },
+    data2: { label: 'ActorId', base: Base.HEX },
+  },
+  [ActorControlType.DamageOverTime]: {
+    data0: { label: 'Status', db: 'Status' },
+    data1: { label: 'Value' },
+    data2: { label: 'ActorId', base: Base.HEX },
+  },
   [ActorControlType.AchievementMsg]: {
     data0: { label: 'Achievement' },
   },

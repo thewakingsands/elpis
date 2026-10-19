@@ -171,5 +171,13 @@ export enum ActorControlType {
   SetDutyActionHud = 1513,
   SetDutyActionActive = 1514,
   SetDutyActionRemaining = 1515,
+  /**
+   * A tick of a heal over time effect on the actor: data0 the status, data1
+   * the value, data2 the source, data3 unknown. With status 0 the tick is the
+   * sum of every effect on the actor, and data2 is not the source.
+   */
+  HealOverTime = 1540,
+  /** A tick of a damage over time effect, laid out as {@link HealOverTime}. */
+  DamageOverTime = 1541,
   EurekaStep = 1850,
 }
