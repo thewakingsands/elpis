@@ -317,8 +317,10 @@ export function formatSeString(
             )
           }
 
-          const enabled = expression.value === 1
-          parts.push(enabled ? `<${tagName}>` : `</${tagName}>`)
+          if (!options.renderToText) {
+            const enabled = expression.value === 1
+            parts.push(enabled ? `<${tagName}>` : `</${tagName}>`)
+          }
           break
         }
         default:

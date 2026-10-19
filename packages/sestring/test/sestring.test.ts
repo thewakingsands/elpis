@@ -72,3 +72,20 @@ describe('sestring', () => {
     expect(formatSeString(result)).toEqual(expected)
   })
 })
+
+describe('renderToText', () => {
+  it('leaves out emphasis', () => {
+    // <Emphasis>quick</Emphasis> brown
+    const input = Buffer.concat([
+      Buffer.from('021a020203', 'hex'),
+      Buffer.from('quick'),
+      Buffer.from('021a020103', 'hex'),
+      Buffer.from(' brown'),
+    ])
+    const result = parseSeString(input)
+    expect(formatSeString(result)).toEqual('<Emphasis>quick</Emphasis> brown')
+    expect(formatSeString(result, { renderToText: true })).toEqual(
+      'quick brown',
+    )
+  })
+})
