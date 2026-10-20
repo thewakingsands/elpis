@@ -1,15 +1,13 @@
-import { FieldType, field, Struct } from '@ffcafe/elpis-struct'
+import { FieldType, field, format, Struct } from '@ffcafe/elpis-struct'
 
 export class ActorGauge extends Struct {
-  @field(FieldType.uint, 0, 4)
-  param1!: number
+  static byteLength = 16
 
-  @field(FieldType.uint, 4, 4)
-  param2!: number
+  @field(FieldType.byte, 0)
+  @format({ db: 'ClassJob' })
+  classJob!: number
 
-  @field(FieldType.uint, 8, 4)
-  param3!: number
-
-  @field(FieldType.uint, 12, 4)
-  param4!: number
+  /** The 14 bytes of the gauge; byte k is at 0x08 + k of the gauge object of the client */
+  @field(FieldType.bytes, 2, 14)
+  gauge!: Buffer
 }
