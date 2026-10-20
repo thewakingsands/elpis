@@ -3,6 +3,7 @@ export { Base, type IPCFieldCondition, type IPCFieldFormat } from './format'
 export { fieldLength } from './helper'
 export { Struct, type StructConstructor } from './struct'
 export {
+  bits,
   type ChildMetadata,
   child,
   childrenMetadataKey,
@@ -13,6 +14,7 @@ export {
   type FieldMetadata,
   field,
   fieldMetadataKey,
+  flag,
   format,
   getChildren,
   getEnums,

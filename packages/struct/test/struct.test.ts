@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'vitest'
-import { child, FieldType, field, Struct } from '../src'
+import { bits, child, FieldType, field, flag, Struct } from '../src'
 
 class Scalars extends Struct {
   @field(FieldType.int, 0, 2)
@@ -148,4 +148,107 @@ test('a buffer shorter than byteLength is rejected', () => {
       error instanceof RangeError &&
       error.message === 'Scalars: expected at least 54 bytes, got 53',
   )
+})
+
+class Packed extends Struct {
+  @field(FieldType.byte, 0)
+  @flag(0)
+  low!: boolean
+
+  @field(FieldType.byte, 0)
+  @bits(1, 3)
+  middle!: number
+
+  @field(FieldType.byte, 0)
+  @flag(7)
+  high!: boolean
+
+  @field(FieldType.byte, 0)
+  @bits(0, 8)
+  whole!: number
+
+  @field(FieldType.uint, 1, 2)
+  @bits(4, 8)
+  word!: number
+
+  @field(FieldType.uint, 1, 2)
+  @flag(15)
+  wordHigh!: boolean
+
+  @field(FieldType.int, 3, 1)
+  @bits(4, 4)
+  signedHigh!: number
+
+  @field(FieldType.int, 3, 1)
+  @flag(7)
+  sign!: boolean
+}
+
+function packedBuffer() {
+  return Buffer.from([0b1000_1011, 0x34, 0x92, 0xa5])
+}
+
+test('bits and flag read bits of byte, uint and int fields', () => {
+  const value = new Packed(packedBuffer())
+
+  assert.equal(value.low, true)
+  assert.equal(value.middle, 0b101)
+  assert.equal(value.high, true)
+  assert.equal(value.whole, 0b1000_1011)
+  assert.equal(value.word, 0x23)
+  assert.equal(value.wordHigh, true)
+  assert.equal(value.signedHigh, 0xa)
+  assert.equal(value.sign, true)
+})
+
+test('bits and flag reject invalid arguments when decorating', () => {
+  for (const make of [
+    () => bits(-1, 1),
+    () => bits(0, 0),
+    () => bits(1, 32),
+    () => flag(-1),
+    () => flag(32),
+  ]) {
+    assert.throws(make, RangeError)
+  }
+})
+
+test('bits on a non-integer field or past the field width fail on construction', () => {
+  class OnFloat extends Struct {
+    @field(FieldType.float, 0)
+    @bits(0, 4)
+    value!: number
+  }
+  class PastByte extends Struct {
+    @field(FieldType.byte, 0)
+    @bits(6, 3)
+    value!: number
+  }
+
+  assert.throws(
+    () => new OnFloat(Buffer.alloc(4)),
+    (error: unknown) =>
+      error instanceof TypeError && error.message.startsWith('OnFloat.value:'),
+  )
+  assert.throws(
+    () => new PastByte(Buffer.alloc(1)),
+    (error: unknown) =>
+      error instanceof TypeError && error.message.startsWith('PastByte.value:'),
+  )
+})
+
+test('spreading a struct gives a plain object with the bit values', () => {
+  const plain = { ...new Packed(packedBuffer()) }
+
+  assert.equal(Object.getPrototypeOf(plain), Object.prototype)
+  assert.deepEqual(plain, {
+    low: true,
+    middle: 0b101,
+    high: true,
+    whole: 0b1000_1011,
+    word: 0x23,
+    wordHigh: true,
+    signedHigh: 0xa,
+    sign: true,
+  })
 })

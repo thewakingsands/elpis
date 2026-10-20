@@ -54,6 +54,41 @@ export abstract class Struct {
     })
   }
 
+  private readBits(
+    key: string | undefined,
+    config: FieldMetadata,
+    value: number,
+  ): number | boolean {
+    const { type, length, bits } = config
+    if (!bits) return value
+
+    const name = `${this.constructor.name}.${key}`
+    let bitWidth: number
+    switch (type) {
+      case FieldType.byte:
+        bitWidth = 8
+        break
+      case FieldType.int:
+      case FieldType.uint:
+        bitWidth = (length ?? 0) * 8
+        break
+      default:
+        throw new TypeError(
+          `${name}: bits need a byte, uint or int field, got ${FieldType[type]}`,
+        )
+    }
+    if (bits.shift + bits.width > bitWidth) {
+      throw new TypeError(
+        `${name}: bits ${bits.shift}..${bits.shift + bits.width - 1} are outside the ${bitWidth}-bit field`,
+      )
+    }
+
+    // Division keeps this exact for uint fields wider than 32 bits, which >>> would truncate
+    const unsigned = value < 0 ? value + 2 ** bitWidth : value
+    const result = Math.floor(unsigned / 2 ** bits.shift) % 2 ** bits.width
+    return bits.flag ? result === 1 : result
+  }
+
   private readField(buffer: Buffer, key?: string, config?: FieldMetadata) {
     if (!config) return
 
@@ -123,6 +158,10 @@ export abstract class Struct {
         value = this.readChild(buffer, offset, child)
         break
       }
+    }
+
+    if (config.bits) {
+      value = this.readBits(key, config, value as number)
     }
 
     const divisor = config.format?.divisor

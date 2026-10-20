@@ -16,6 +16,8 @@ export interface FieldMetadata {
   children?: FieldMetadata[]
   format?: IPCFieldFormat
   condition?: Record<string, IPCFieldCondition[]>
+  /** Set by bits() and flag(): the value is these bits of the integer field */
+  bits?: { shift: number; width: number; flag: boolean }
 }
 
 export interface ChildMetadata {
@@ -95,6 +97,42 @@ export function condition(
   condition: Record<string, IPCFieldCondition[]>,
 ): PropertyDecorator {
   return setField((_, prev) => ({ ...prev, condition }))
+}
+
+/**
+ * Reads `width` bits of an integer field from bit `shift`, as a number.
+ * Throws RangeError when shift is negative, width is not positive, or shift + width is above 32.
+ */
+export function bits(shift: number, width: number): PropertyDecorator {
+  if (
+    !Number.isInteger(shift) ||
+    !Number.isInteger(width) ||
+    shift < 0 ||
+    width <= 0 ||
+    shift + width > 32
+  ) {
+    throw new RangeError(
+      `Invalid bits(${shift}, ${width}): need shift >= 0, width > 0 and shift + width <= 32`,
+    )
+  }
+  return setField((_, prev) => ({
+    ...prev,
+    bits: { shift, width, flag: false },
+  }))
+}
+
+/**
+ * Reads bit `bit` of an integer field, as a boolean.
+ * Throws RangeError when bit is negative or above 31.
+ */
+export function flag(bit: number): PropertyDecorator {
+  if (!Number.isInteger(bit) || bit < 0 || bit > 31) {
+    throw new RangeError(`Invalid flag(${bit}): need 0 <= bit <= 31`)
+  }
+  return setField((_, prev) => ({
+    ...prev,
+    bits: { shift: bit, width: 1, flag: true },
+  }))
 }
 
 function mergePrototypeMetadata<T>(
