@@ -24,6 +24,15 @@ assert.deepEqual(
 const png = await esm.formatTex(input)
 assert.equal(png.format, 'png')
 assert.equal(png.data.subarray(0, 8).toString('hex'), '89504e470d0a1a0a')
+// BC1 three-color mode, index 3: exercise the installed WASM on every platform.
+const bc1 = Buffer.alloc(88)
+input.copy(bc1, 0, 0, 80)
+bc1.writeUInt32LE(0x3420, 4)
+bc1.writeUInt16LE(4, 8)
+bc1.writeUInt16LE(4, 10)
+bc1.set([0, 0, 255, 255, 255, 255, 255, 255], 80)
+assert.deepEqual((await cjs.decodeTex(bc1)).data, Buffer.alloc(64))
+assert.deepEqual((await esm.decodeTex(bc1)).data, Buffer.alloc(64))
 console.log(
   JSON.stringify({
     node: process.version,

@@ -48,7 +48,8 @@ pub fn decode(data: &[u8], header: Header) -> Result<Vec<u8>> {
         0x3420 | 0x3431 | 0x6432 => {
             let mut decoded = allocate::<u32>(pixels)?;
             let decoder = match header.format {
-                0x3420 => texture2ddecoder::decode_bc1,
+                // TEX BC1 uses index 3 as transparent when color_0 <= color_1.
+                0x3420 => texture2ddecoder::decode_bc1a,
                 0x3431 => texture2ddecoder::decode_bc3,
                 _ => texture2ddecoder::decode_bc7,
             };

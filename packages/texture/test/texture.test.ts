@@ -33,6 +33,26 @@ test('all seven formats, offsets, transparency and cropped BC edges', async () =
   expect([...row.data]).toEqual([...Array(4).fill([255, 0, 0, 255]).flat(), 0, 255, 0, 255])
 })
 
+// Synthetic BC1 blocks: indices are packed least-significant pixel first.
+// Expected RGBA is independent of the legacy decoder (which discarded BC1 alpha).
+test.each([
+  ['transparent index', [0, 0, 255, 255, 255, 255, 255, 255], Array(16).fill([0, 0, 0, 0]).flat()],
+  ['equal endpoints', [0, 0xf8, 0, 0xf8, 255, 255, 255, 255], Array(16).fill([0, 0, 0, 0]).flat()],
+  ['three-color palette', [0, 0, 255, 255, 0xe4, 0xe4, 0xe4, 0xe4], Array(4).fill([
+    0, 0, 0, 255, 255, 255, 255, 255, 127, 127, 127, 255, 0, 0, 0, 0,
+  ]).flat()],
+  ['four-color opaque index', [0, 0xf8, 0, 0, 255, 255, 255, 255], Array(16).fill([85, 0, 0, 255]).flat()],
+])('BC1 palette preserves alpha: %s', async (_name, block, expected) => {
+  const input = tex(0x3420, 4, 4, Buffer.from(block))
+  const rgba = await api.decodeTex(input)
+  expect([rgba.width, rgba.height]).toEqual([4, 4])
+  expect(rgba.data).toEqual(Buffer.from(expected))
+  const encoded = await api.formatTex(input)
+  const png = PNG.sync.read(encoded.data)
+  expect([png.width, png.height]).toEqual([4, 4])
+  expect(png.data).toEqual(Buffer.from(expected))
+})
+
 test('Promise-only validation, plain data options and explicit PNG', async () => {
   expect(() => api.decodeTex('bad').catch(() => {})).not.toThrow()
   await expect(api.decodeTex(new Uint8Array(80))).rejects.toMatchObject({ code: 'invalid_argument' })
