@@ -1,0 +1,83 @@
+name: Texture portable artifact
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: pnpm
+      - uses: dtolnay/rust-toolchain@1.99.1
+        with:
+          targets: wasm32-unknown-unknown
+      - run: cargo install wasm-bindgen-cli --version 0.2.129 --locked
+      - run: pnpm install --frozen-lockfile
+      - run: cargo test --locked --manifest-path packages/texture/rust/Cargo.toml
+      - run: pnpm build
+      - run: pnpm typecheck && pnpm lint && pnpm test && pnpm check:dist
+      - run: node --test scripts/publish.test.mjs
+      - run: pnpm --filter @ffcafe/elpis-texture pack --pack-destination artifacts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: texture-package
+          path: artifacts/*.tgz
+  node:
+    needs: package
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ['22', '24']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: texture-package
+          path: artifact
+      - shell: bash
+        run: |
+          mkdir installed
+          cd installed
+          npm init -y
+          npm install --ignore-scripts --no-audit --no-fund ../artifact/*.tgz
+          cd ..
+          node packages/texture/scripts/smoke-package.mjs installed/node_modules/@ffcafe/elpis-texture
+          cp -R installed/node_modules/@ffcafe/elpis-texture/dist packages/texture/dist
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @ffcafe/elpis-texture test
+  electron:
+    needs: package
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - uses: actions/download-artifact@v4
+        with:
+          name: texture-package
+          path: artifact
+      - shell: bash
+        run: |
+          mkdir installed
+          cd installed
+          npm init -y
+          npm install --no-audit --no-fund electron@45.0.0 ../artifact/*.tgz
+          cd ..
+          installed/node_modules/.bin/electron packages/texture/scripts/smoke-package.mjs installed/node_modules/@ffcafe/elpis-texture

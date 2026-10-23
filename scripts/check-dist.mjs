@@ -59,6 +59,24 @@ for (const dir of readdirSync(packagesDir).sort()) {
     }
   }
 
+  if (name === '@ffcafe/elpis-texture') {
+    const input = Buffer.alloc(84)
+    input.writeUInt32LE(0x00800000, 0)
+    input.writeUInt32LE(0x1450, 4)
+    input.writeUInt16LE(1, 8)
+    input.writeUInt16LE(1, 10)
+    input.writeUInt16LE(1, 12)
+    input[14] = 1
+    input.writeUInt32LE(80, 28)
+    input.set([30, 20, 10, 128], 80)
+    const decoded = await cjs.decodeTex(input)
+    const encoded = await esm.formatTex(input)
+    if (!decoded.data.equals(Buffer.from([10, 20, 30, 128])))
+      fail(name, 'RGBA differs')
+    if (encoded.data.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a')
+      fail(name, 'Invalid PNG')
+  }
+
   if (failures === before)
     console.log(`${name}: ${cjsNames.size} exports match`)
 }

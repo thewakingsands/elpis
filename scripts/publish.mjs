@@ -5,7 +5,14 @@ import { fileURLToPath } from 'node:url'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const registry = 'https://registry.npmjs.org/'
-const packages = ['struct', 'memory', 'network', 'sestring', 'sqpack']
+const packages = [
+  'struct',
+  'memory',
+  'network',
+  'sestring',
+  'sqpack',
+  'texture',
+]
 // SemVer's numeric components and prerelease identifiers cannot have leading zeros.
 const number = '(?:0|[1-9][0-9]*)'
 const identifier = '(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)'
