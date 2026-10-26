@@ -65,6 +65,14 @@ pnpm --filter @ffcafe/elpis-network sync --packets /path/to/packets.yaml
 
 GitHub Actions also runs the sync daily.
 
+Export one upstream version as a Mojito opcode component, without rewriting the TypeScript tables:
+
+```bash
+pnpm --filter @ffcafe/elpis-network sync --profile-version 7.57 --output opcodes.json
+```
+
+Import this JSON in the profile administration page to compare packet types and select new entries. The exporter uses the same name mappings and direction metadata as the normal sync; missing or conflicting directions fail the export. Test the resulting profile in Mojito before promoting it to release.
+
 ### Verifying signatures in the game
 
 Check every memory signature against the running game:

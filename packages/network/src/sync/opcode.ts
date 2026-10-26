@@ -239,3 +239,57 @@ export async function syncOpcodes(packetsFile?: string) {
   await formatCode('opcode')
   return opcodeTypes
 }
+
+export function profileOpcodeComponent(
+  table: Record<string, string>,
+  opcodeTypes: string[],
+  catalog: PacketCatalog,
+) {
+  const output: Record<
+    string,
+    Array<{ type: string; outgoing: boolean; channel: 'zone' }>
+  > = {}
+  for (const [hex, entries] of Object.entries(
+    buildOpcodeEntries(table, opcodeTypes, catalog),
+  )) {
+    if (!/^0x[0-9a-f]+$/.test(hex) || Number(hex) > 65535)
+      throw new Error(`Invalid opcode: ${hex}`)
+    for (const entry of entries) {
+      if (entry.outgoing === undefined)
+        throw new Error(`Missing direction for ${entry.type}`)
+      const metadata = catalog.packets.get(entry.type)
+      if (!metadata?.category.endsWith('ZoneIpc')) continue
+      const key = String(Number(hex))
+      const rows = output[key] ?? []
+      if (rows.some((row) => row.outgoing === entry.outgoing))
+        throw new Error(`Duplicate direction for opcode ${hex}`)
+      rows.push({ type: entry.type, outgoing: entry.outgoing, channel: 'zone' })
+      output[key] = rows
+    }
+  }
+  return { schemaVersion: 1 as const, table: output }
+}
+
+export async function exportProfileOpcodes(
+  version: string,
+  output: string,
+  opcodeTypes: string[],
+  packetsFile?: string,
+) {
+  mkdirSync(cacheDir, { recursive: true })
+  const versions: string[] = await request(
+    urls.opcodeVersions,
+    'opcode-versions',
+  )
+  if (!versions.includes(version))
+    throw new Error(`Unknown upstream version: ${version}`)
+  const catalog = await loadPackets({ file: packetsFile })
+  const table: Record<string, string> = await request(
+    urls.opcodeJson(version),
+    `opcode-${version}`,
+  )
+  writeFileSync(
+    output,
+    `${JSON.stringify(profileOpcodeComponent(table, opcodeTypes, catalog), null, 2)}\n`,
+  )
+}
