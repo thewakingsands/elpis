@@ -33,6 +33,17 @@ export const ObjectKind = {
   BattleNpc: 2,
 } as const
 
+/** `BattleNpcSubKind`: what `GameObject.SubKind` means when `ObjectKind` is `BattleNpc`. */
+export const BattleNpcSubKind = {
+  Pet: 2,
+  /** A chocobo companion. */
+  Buddy: 3,
+  /** Enemies and guards. */
+  Combatant: 5,
+  /** NPC members of squadrons, Trusts and Duty Support parties. */
+  NpcPartyMember: 9,
+} as const
+
 /** A position in the game world; `y` is the height. */
 export class MemoryPosition extends Struct {
   static byteLength = 12
@@ -70,6 +81,10 @@ export class MemoryCombatant extends Struct {
 
   @field(FieldType.byte, 0x90)
   objectKind!: number
+
+  /** `GameObject.SubKind`; a {@link BattleNpcSubKind} when `objectKind` is `BattleNpc`. */
+  @field(FieldType.byte, 0x91)
+  subKind!: number
 
   /** Distance from the local player in yalms, as the game rounds it. */
   @field(FieldType.byte, 0x96)
