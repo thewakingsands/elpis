@@ -2,6 +2,7 @@ import {
   type MemoryAddresses,
   type MemorySignatureName,
   memorySignatures,
+  optionalMemorySignatures,
 } from './signatures'
 
 /** Which sections of the game executable to scan. */
@@ -44,13 +45,20 @@ export async function resolveSignature(
   return [...targets][0]
 }
 
-/** Resolve every signature in the order of {@link memorySignatures}, rejecting at the first that fails. */
+/**
+ * Resolve every signature in the order of {@link memorySignatures}, rejecting at the first required one that fails.
+ * The {@link optionalMemorySignatures} that fail are left out.
+ */
 export async function resolveSignatures(
   source: MemorySource,
 ): Promise<MemoryAddresses> {
-  const addresses = {} as MemoryAddresses
+  const addresses = {} as Record<MemorySignatureName, number>
   for (const name of Object.keys(memorySignatures) as MemorySignatureName[]) {
-    addresses[name] = await resolveSignature(source, name)
+    try {
+      addresses[name] = await resolveSignature(source, name)
+    } catch (error) {
+      if (!optionalMemorySignatures.includes(name)) throw error
+    }
   }
   return addresses
 }

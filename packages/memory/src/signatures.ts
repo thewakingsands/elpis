@@ -20,9 +20,22 @@ export const memorySignatures = {
   /** The vtable of `RaptureLogModule`, which holds the chat log. */
   logModuleVtable:
     '48 8B DA 49 8B F8 41 8B D1 48 8B F1 ?? ?? ?? ?? ?? 48 8D 05',
+  /**
+   * `Conditions`, the flags of what the player is doing. The same code FFXIVClientStructs finds with
+   * `48 8D 0D ?? ?? ?? ?? 66 2B D8`, cut to end at the displacement.
+   */
+  conditions: '48 8B F9 B8 E8 03 00 00 45 33 C0 48 8D 0D',
 } as const
 
 export type MemorySignatureName = keyof typeof memorySignatures
 
-/** The address each signature resolves to in a running game. */
-export type MemoryAddresses = Record<MemorySignatureName, number>
+/** Signatures a reader can do without: it skips what they point at when they fail to resolve. */
+export const optionalMemorySignatures: readonly MemorySignatureName[] = [
+  'conditions',
+]
+
+/** The address each signature resolves to in a running game; the optional ones may be missing. */
+export type MemoryAddresses = Record<
+  Exclude<MemorySignatureName, 'conditions'>,
+  number
+> & { conditions?: number }

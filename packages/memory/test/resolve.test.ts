@@ -102,3 +102,12 @@ test('resolveSignatures stops at the first signature that fails', async () => {
       .map((name) => memorySignatures[name]),
   )
 })
+
+test('resolveSignatures leaves out an optional signature that fails', async () => {
+  const memory = Buffer.alloc(0x10000)
+  const expected = plantAll(memory, 'conditions')
+
+  const addresses = await resolveSignatures(new FakeSource(memory))
+  assert.equal('conditions' in addresses, false)
+  assert.deepEqual(addresses, expected)
+})

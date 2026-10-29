@@ -3,7 +3,7 @@
  *
  * The names in the comments are the FFXIVClientStructs ones.
  */
-import { child, FieldType, field, Struct } from '@ffcafe/elpis-struct'
+import { child, FieldType, field, flag, Struct } from '@ffcafe/elpis-struct'
 
 /** Entity id the game uses for "nobody". */
 export const noEntity = 0xe0000000
@@ -85,6 +85,10 @@ export class MemoryCombatant extends Struct {
   /** `GameObject.SubKind`; a {@link BattleNpcSubKind} when `objectKind` is `BattleNpc`. */
   @field(FieldType.byte, 0x91)
   subKind!: number
+
+  /** `GameObject.TargetableStatus`, bit flags; see {@link isTargetable}. */
+  @field(FieldType.byte, 0x9a)
+  targetableStatus!: number
 
   /** Distance from the local player in yalms, as the game rounds it. */
   @field(FieldType.byte, 0x96)
@@ -180,6 +184,14 @@ export class MemoryCombatant extends Struct {
     if (this.objectKind === ObjectKind.Player && isSet(this.lookAtTargetId))
       return this.lookAtTargetId
     return isSet(this.hardTargetId) ? this.hardTargetId : 0
+  }
+
+  /**
+   * Whether the character can be targeted. Dalamud asks `GameObject.GetIsTargetable()`, which cannot be called from
+   * another process; this reads its `IsTargetable` flag instead.
+   */
+  get isTargetable(): boolean {
+    return (this.targetableStatus & 0x02) !== 0
   }
 
   get isCasting(): boolean {
@@ -295,6 +307,27 @@ export class MemoryTerritory extends Struct {
 
   @field(FieldType.uint, 0x18, 4)
   mapId!: number
+}
+
+/**
+ * `Conditions`: one boolean byte per `ConditionFlag`, the flag being the offset.
+ * Only the flags about cutscenes are read.
+ */
+export class MemoryConditions extends Struct {
+  static byteLength = 112
+
+  /** Busy and unable to act; also set in talks with NPCs, not only in cutscenes. */
+  @field(FieldType.byte, 35)
+  @flag(0)
+  occupiedInCutSceneEvent!: boolean
+
+  @field(FieldType.byte, 58)
+  @flag(0)
+  watchingCutscene!: boolean
+
+  @field(FieldType.byte, 78)
+  @flag(0)
+  watchingCutscene78!: boolean
 }
 
 /** `LogModule`: the vectors holding the chat log. */

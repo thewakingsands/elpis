@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { test } from 'vitest'
 import {
   MemoryCombatant,
+  MemoryConditions,
   MemoryParty,
   MemoryPartyMember,
   noEntity,
@@ -95,6 +96,44 @@ test('a cast needs both the flag and the action type', () => {
   const idle = combatantBuffer()
   idle[0x2790] = 0
   assert.equal(new MemoryCombatant(idle).isCasting, false)
+})
+
+test('a character is targetable when the IsTargetable bit of its targetable status is set', () => {
+  const buffer = combatantBuffer()
+  buffer[0x9a] = 0x02 | 0x01
+  const targetable = new MemoryCombatant(buffer)
+  assert.equal(targetable.targetableStatus, 0x03)
+  assert.equal(targetable.isTargetable, true)
+
+  buffer[0x9a] = 0xfd
+  assert.equal(new MemoryCombatant(buffer).isTargetable, false)
+})
+
+test('conditions read the cutscene flags at their offsets', () => {
+  const buffer = Buffer.alloc(MemoryConditions.byteLength)
+  buffer[58] = 1
+  const watching = new MemoryConditions(buffer)
+  assert.deepEqual(
+    [
+      watching.occupiedInCutSceneEvent,
+      watching.watchingCutscene,
+      watching.watchingCutscene78,
+    ],
+    [false, true, false],
+  )
+
+  buffer[58] = 0
+  buffer[35] = 1
+  buffer[78] = 1
+  const occupied = new MemoryConditions(buffer)
+  assert.deepEqual(
+    [
+      occupied.occupiedInCutSceneEvent,
+      occupied.watchingCutscene,
+      occupied.watchingCutscene78,
+    ],
+    [true, false, true],
+  )
 })
 
 function partyBuffer(inParty: boolean) {
