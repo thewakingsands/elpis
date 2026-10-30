@@ -42,9 +42,11 @@ port.on('message', (request: Request) => {
     request.taskId <= 0 ||
     !Number.isSafeInteger(request.workerGeneration) ||
     request.workerGeneration <= 0 ||
-    !['decode', 'png'].includes(request.operation) ||
+    !['decode', 'png', 'map'].includes(request.operation) ||
     !(request.input instanceof ArrayBuffer) ||
-    request.input.byteLength > maxBytes
+    (request.background !== undefined &&
+      !(request.background instanceof ArrayBuffer)) ||
+    request.input.byteLength + (request.background?.byteLength ?? 0) > maxBytes
   ) {
     fail('worker_failed', 'Invalid texture worker request', true)
     return
@@ -63,10 +65,18 @@ port.on('message', (request: Request) => {
   }
   let result: any
   try {
-    result = wasm.convert(
-      new Uint8Array(request.input),
-      request.operation === 'decode' ? 0 : 1,
-    )
+    result =
+      request.operation === 'map'
+        ? wasm.compose_map(
+            new Uint8Array(request.input),
+            request.background
+              ? new Uint8Array(request.background)
+              : new Uint8Array(0),
+          )
+        : wasm.convert(
+            new Uint8Array(request.input),
+            request.operation === 'decode' ? 0 : 1,
+          )
     const { code, width, height, message } = result
     const memoryBytes = wasm.__wasm.memory.buffer.byteLength
     if (code !== 0) {

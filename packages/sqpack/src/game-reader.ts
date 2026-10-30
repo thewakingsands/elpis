@@ -101,6 +101,10 @@ export class GameSqPackReader {
     return (await this.locate(resourcePath))?.prefix ?? null
   }
 
+  async hasFile(resourcePath: string): Promise<boolean> {
+    return (await this.locate(resourcePath)) !== null
+  }
+
   async readFile(resourcePath: string): Promise<Buffer | null> {
     const found = await this.locate(resourcePath)
     return found ? found.reader.readFile(found.path) : null

@@ -88,3 +88,23 @@ it('shares one data handle across concurrent texture reads', async () => {
     await rm(game, { recursive: true, force: true })
   }
 })
+
+it('checks existence through indexes without opening data files', async () => {
+  const game = await mkdtemp(join(tmpdir(), 'sqpack-index-only-'))
+  const directory = join(game, 'sqpack/ffxiv')
+  await mkdir(directory, { recursive: true })
+  const prefix = join(directory, '060003.win32')
+  const writer = new SqPackWriter({ prefix })
+  await writer.addFile('ui/map/s1f1/00/s1f100_m.tex', Buffer.from('not a TEX'))
+  await writer.close()
+  await unlink(`${prefix}.dat0`)
+  const reader = new GameSqPackReader(game)
+  try {
+    expect(await reader.hasFile('ui/map/s1f1/00/s1f100_m.tex')).toBe(true)
+    expect(await reader.hasFile('ui/map/missing.tex')).toBe(false)
+    await expect(reader.hasFile('ui/../outside')).rejects.toThrow()
+  } finally {
+    await reader.close()
+    await rm(game, { recursive: true, force: true })
+  }
+})

@@ -18,6 +18,7 @@ interface Task {
   outputBudget: number
   reservation: number
   input: ArrayBuffer
+  background?: ArrayBuffer
   resolve(value: Result): void
   reject(reason: Error): void
 }
@@ -156,19 +157,20 @@ function dispatch() {
       taskId: task.id,
       operation: task.operation,
       input: task.input,
+      background: task.background,
     }
     try {
-      slot.worker.postMessage(request, [task.input])
+      slot.worker.postMessage(
+        request,
+        task.background ? [task.input, task.background] : [task.input],
+      )
     } catch {
       crash(slot)
     }
   }
 }
 
-export async function submit(
-  buffer: Buffer,
-  operation: Operation,
-): Promise<Result> {
+function dimensions(buffer: Buffer): { width: number; height: number } {
   if (!Buffer.isBuffer(buffer))
     throw failure('invalid_argument', 'Input must be a Buffer')
   if (buffer.length > maxBytes)
@@ -181,6 +183,23 @@ export async function submit(
     throw failure('invalid_texture', 'TEX dimensions must be positive')
   if (width > 16384 || height > 16384 || width * height > maxPixels)
     throw failure('resource_limit', 'TEX dimensions exceed the resource budget')
+  return { width, height }
+}
+
+export async function submit(
+  buffer: Buffer,
+  operation: Operation,
+  background?: Buffer,
+): Promise<Result> {
+  const { width, height } = dimensions(buffer)
+  let backgroundPixels = 0
+  if (background !== undefined) {
+    const size = dimensions(background)
+    backgroundPixels = size.width * size.height
+  }
+  const inputBytes = buffer.length + (background?.length ?? 0)
+  if (inputBytes > maxBytes)
+    throw failure('resource_limit', 'TEX inputs exceed 128 MiB')
   if (queue.length >= 8)
     throw failure('resource_limit', 'Texture queue is full')
   const rgbaBytes = width * height * 4
@@ -188,15 +207,23 @@ export async function submit(
     operation === 'decode'
       ? rgbaBytes
       : Math.min(maxBytes, Math.max(MiB, 2 * rgbaBytes + MiB))
-  const reservation = buffer.length + outputBudget
+  const reservation =
+    inputBytes +
+    outputBudget +
+    (operation === 'map' ? rgbaBytes + backgroundPixels * 4 : 0)
   if (reserved + reservation > 256 * MiB)
     throw failure('resource_limit', 'Texture byte budget is full')
   if (slots.size === 0 && queue.length === 0) initializationFailures = 0
   reserved += reservation
   let input: ArrayBuffer
+  let backgroundInput: ArrayBuffer | undefined
   try {
     input = new ArrayBuffer(buffer.length)
     new Uint8Array(input).set(buffer)
+    if (background !== undefined) {
+      backgroundInput = new ArrayBuffer(background.length)
+      new Uint8Array(backgroundInput).set(background)
+    }
   } catch {
     reserved -= reservation
     throw failure('resource_limit', 'Cannot copy TEX input')
@@ -210,6 +237,7 @@ export async function submit(
       outputBudget,
       reservation,
       input,
+      background: backgroundInput,
       resolve,
       reject,
     })

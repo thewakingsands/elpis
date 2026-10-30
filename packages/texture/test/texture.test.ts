@@ -128,3 +128,18 @@ test('WASM execution leaves main-thread timers responsive and idle workers permi
   const child = await promisify(execFile)(process.execPath, ['-e', code], { timeout: 10000, cwd: '/' })
   expect(child.stdout.trim()).toBe('2')
 })
+
+test('map composition multiplies every RGBA channel and preserves precomposed maps', async () => {
+  const main = tex(0x1450, 1, 1, Buffer.from([60, 80, 100, 200]))
+  const background = tex(0x1450, 1, 1, Buffer.from([255, 64, 128, 128]))
+  const combined = PNG.sync.read((await api.composeMap(main, background)).data)
+  expect([...combined.data]).toEqual([50, 20, 60, 100])
+  expect([combined.width, combined.height]).toEqual([1, 1])
+  expect(PNG.sync.read((await api.composeMap(main)).data).data).toEqual(Buffer.from([100, 80, 60, 200]))
+  const transparent = tex(0x1450, 2, 1, Buffer.from([255, 255, 255, 255, 0, 0, 0, 0]))
+  expect(PNG.sync.read((await api.composeMap(tex(), transparent)).data).data).toEqual((await api.decodeTex(tex())).data)
+  await expect(api.composeMap(tex(), background)).rejects.toMatchObject({ code: 'invalid_texture' })
+  await expect(api.composeMap(main, Buffer.alloc(80))).rejects.toMatchObject({ code: 'invalid_texture' })
+  await expect(api.composeMap(main, new Uint8Array(80))).rejects.toMatchObject({ code: 'invalid_argument' })
+  expect(pool.inspect().reserved).toBe(0)
+})

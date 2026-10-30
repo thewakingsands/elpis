@@ -4,7 +4,11 @@ import type { Operation, Result } from './protocol'
 
 // Both entry formats load the same CJS module, so mixed imports share one pool.
 const coordinator = createRequire(import.meta.url)('./coordinator.cjs') as {
-  submit(buffer: Buffer, operation: Operation): Promise<Result>
+  submit(
+    buffer: Buffer,
+    operation: Operation,
+    background?: Buffer,
+  ): Promise<Result>
 }
 
 export interface DecodedTexture {
@@ -50,5 +54,13 @@ export async function formatTex(
     }
   }
   const result = await coordinator.submit(buffer, 'png')
+  return { format: 'png', data: result.data }
+}
+
+export async function composeMap(
+  mapTex: Buffer,
+  backgroundTex?: Buffer,
+): Promise<FormatTexResult> {
+  const result = await coordinator.submit(mapTex, 'map', backgroundTex)
   return { format: 'png', data: result.data }
 }
