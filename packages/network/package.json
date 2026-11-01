@@ -30,7 +30,7 @@
     "build": "tsdown",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "sync": "tsx src/sync/index.ts"
+    "sync": "pnpm --filter @ffcafe/elpis-struct build && tsx src/sync/index.ts"
   },
   "dependencies": {
     "@ffcafe/elpis-struct": "workspace:*"

@@ -63,7 +63,7 @@ pnpm --filter @ffcafe/elpis-network sync
 pnpm --filter @ffcafe/elpis-network sync --packets /path/to/packets.yaml
 ```
 
-GitHub Actions also runs the sync daily.
+You can also run the sync from GitHub Actions: trigger the "Sync opcodes" workflow by hand.
 
 Export one upstream version as a Mojito opcode component, without rewriting the TypeScript tables:
 
