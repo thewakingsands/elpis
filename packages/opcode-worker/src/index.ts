@@ -50,13 +50,14 @@ export function parseCatalog(source: string): PacketCatalog {
           throw new Error(`Invalid ${provider} name for ${name}`)
         }
       }
+      if (name === 'InventoryHandlerOffset') continue
       packets.set(name, {
         category,
         direction,
         names: providers as Record<string, string>,
       })
       const alias = providers.FFXIVOpcodes as string | undefined
-      if (alias === undefined) continue
+      if (alias === undefined || alias === 'InventoryHandlerOffset') continue
       if (aliases.has(alias)) {
         throw new Error(
           `Ambiguous FFXIVOpcodes name ${alias}: ${aliases.get(alias)} and ${name}`,
@@ -89,6 +90,10 @@ export function normalizeTable(
   if (!isRecord(table)) throw new Error('Expected an opcode name mapping')
   const entries = new Map<string, WorkerEntry>()
   for (const [name, value] of Object.entries(table)) {
+    // This is a payload field offset, not an IPC opcode or handler alias.
+    if (name === 'InventoryHandlerOffset') continue
+    const type = catalog.aliases.get(name) ?? name
+    if (type === 'InventoryHandlerOffset') continue
     if (
       !name.trim() ||
       typeof value !== 'string' ||
@@ -96,7 +101,6 @@ export function normalizeTable(
     ) {
       throw new Error(`Invalid opcode for ${name}: ${String(value)}`)
     }
-    const type = catalog.aliases.get(name) ?? name
     const opcode = Number(value)
     const previous = entries.get(type)
     if (previous && previous.opcode !== opcode) {

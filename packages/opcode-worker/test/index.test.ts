@@ -16,7 +16,7 @@ ClientZoneIpc:
 `
 
 describe('catalog and normalization', () => {
-  it('uses explicit directions and only FFXIVOpcodes aliases, retaining unknowns and helpers', () => {
+  it('uses explicit directions and only FFXIVOpcodes aliases, retaining unknowns and excluding field offsets', () => {
     const catalog = parseCatalog(yaml)
     const entries = normalizeTable(
       {
@@ -43,9 +43,7 @@ describe('catalog and normalization', () => {
     })
     expect(entries).toContainEqual({ type: 'OtherCast', opcode: 34 })
     expect(entries).toContainEqual({ type: 'Uncatalogued', opcode: 35 })
-    expect(
-      entries.find((e) => e.type === 'InventoryHandlerOffset')?.opcode,
-    ).toBe(36)
+    expect(entries.some((e) => e.type === 'InventoryHandlerOffset')).toBe(false)
     expect(entries.filter((e) => e.type === 'ActorCast')).toHaveLength(1)
     expect(
       normalizeTable(
@@ -55,6 +53,81 @@ describe('catalog and normalization', () => {
         catalog,
       ),
     ).toEqual(normalizeTable({ Cast: '0x1a', ActionRequest: '0x1a' }, catalog))
+  })
+
+  it.each([
+    [{ InventoryHandlerOffset: '0x10' }, []],
+    [{ InventoryHandlerOffset: 'not-an-opcode' }, []],
+    [
+      { InventoryModifyHandler: '0x20' },
+      [
+        {
+          type: 'InventoryModifyHandler',
+          opcode: 32,
+          category: 'ServerZoneIpc',
+          outgoing: false,
+        },
+      ],
+    ],
+    [
+      { InventoryHandlerOffset: '0x20', InventoryModifyHandler: '0x20' },
+      [
+        {
+          type: 'InventoryModifyHandler',
+          opcode: 32,
+          category: 'ServerZoneIpc',
+          outgoing: false,
+        },
+      ],
+    ],
+    [
+      { InventoryHandlerOffset: '0x10', InventoryModifyHandler: '0x20' },
+      [
+        {
+          type: 'InventoryModifyHandler',
+          opcode: 32,
+          category: 'ServerZoneIpc',
+          outgoing: false,
+        },
+      ],
+    ],
+  ])('never treats a field offset as an IPC candidate: %j', (table, expected) => {
+    expect(
+      normalizeTable(table as Record<string, string>, parseCatalog(yaml)),
+    ).toEqual(expected)
+  })
+
+  it('does not register the field offset or use it as a handler alias', () => {
+    const catalog = parseCatalog(
+      yaml.replace(
+        'InventoryModifyHandler: {}',
+        'InventoryModifyHandler:\n      FFXIVOpcodes: InventoryHandlerOffset',
+      ),
+    )
+    expect(catalog.packets.has('InventoryHandlerOffset')).toBe(false)
+    expect(catalog.aliases.has('InventoryHandlerOffset')).toBe(false)
+    expect(normalizeTable({ InventoryHandlerOffset: '0x10' }, catalog)).toEqual(
+      [],
+    )
+    expect(normalizeTable({ InventoryModifyHandler: '0x20' }, catalog)).toEqual(
+      [
+        {
+          type: 'InventoryModifyHandler',
+          opcode: 32,
+          category: 'ServerZoneIpc',
+          outgoing: false,
+        },
+      ],
+    )
+    expect(
+      normalizeTable(
+        { LegacyOffset: '0x10' },
+        {
+          ...catalog,
+          aliases: new Map([['LegacyOffset', 'InventoryHandlerOffset']]),
+        },
+      ),
+    ).toEqual([])
   })
 
   it('rejects conflicting aliases and malformed values with names', () => {
