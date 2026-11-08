@@ -1,8 +1,6 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
 import { test } from 'vitest'
-import { PacketMap } from '../src/definitions/ipc'
+import { ActorControl, NormalizedOpcode, PacketMap, type OpcodeItem, type OpcodeMap, type ParsableOpcode } from '../src'
 import { ActionRequest } from '../src/definitions/ipc/action-request'
 import { CountdownCancel, CountdownInitiate } from '../src/definitions/ipc/countdown'
 import { MapEffect4, MapEffect8, MapEffect12 } from '../src/definitions/ipc/environment-control'
@@ -16,41 +14,21 @@ import { ServerNotice } from '../src/definitions/ipc/server-notice'
 import { StatusEffectList3, StatusEffectListPlayerDouble } from '../src/definitions/ipc/status-effect-list'
 import { SystemLogMessage32, SystemLogMessage144 } from '../src/definitions/ipc/system-log-message'
 import { BattleTalk8, BalloonTalk8 } from '../src/definitions/ipc/talk'
-import { NormalizedOpcode } from '../src/opcode'
 import type { StructConstructor } from '@ffcafe/elpis-struct'
-import { buildOpcodeEntries } from '../src/sync/opcode'
-import { normalizeOpcodeTable, parsePackets } from '../src/sync/packet-names'
 
-const catalog = parsePackets(readFileSync(join(import.meta.dirname, 'fixtures/packets.yaml'), 'utf8'))
-const { aliases, packets } = catalog
-
-test('7.56a registry covers every upstream name after canonical alias normalization', () => {
-  const input = JSON.parse(readFileSync(join(import.meta.dirname, 'fixtures/7.56a.json'), 'utf8'))
-  const expected = normalizeOpcodeTable(input, aliases)
-  const actual: Record<string, string> = {}
-  for (const [opcode, items] of Object.entries(buildOpcodeEntries(input, Object.values(NormalizedOpcode), catalog))) {
-    for (const item of Array.isArray(items) ? items : [items]) {
-      assert(item && typeof item !== 'string')
-      const metadata = packets.get(item.type)
-      assert(metadata, `missing packet metadata: ${item.type}`)
-      assert.equal(item.outgoing, metadata.direction === 'client-to-server', item.type)
-      assert.equal(actual[item.type], undefined, `duplicate canonical name: ${item.type}`)
-      actual[item.type] = `0x${Number(opcode).toString(16).padStart(4, '0').toUpperCase()}`
-    }
-  }
-  assert.deepEqual(actual, expected)
-  assert.equal(expected.EventPlay64, '0x0351')
-  assert.equal(expected.EventPlay32, '0x019D')
-  assert.equal(expected.ResumeEventScene16, '0x00FB')
-  assert.equal(expected.ResumeEventScene8, '0x0267')
-  assert.equal(expected.ResultDialog, undefined)
-  assert.equal(expected.DesynthResult, undefined)
-  assert.equal(expected.RecastGroup, '0x01F7')
-  assert.equal(expected.CFDutyInfo, undefined)
-})
-
-test('conflicting aliases are rejected instead of silently replacing an opcode', () => {
-  assert.throws(() => normalizeOpcodeTable({ RSV: '0x0010', RSVData: '0x0011' }, aliases), /Conflicting/)
+test('external opcode mappings select structures through the public API', () => {
+  const name: ParsableOpcode = NormalizedOpcode.ActorControl
+  const item: OpcodeItem = { type: name, outgoing: false }
+  const opcodes: OpcodeMap = { 101: [item] }
+  const entries = opcodes[101] as OpcodeItem[]
+  const Type = PacketMap[entries[0].type]
+  assert(Type)
+  const bytes = Buffer.alloc(Type.byteLength!)
+  bytes.writeUInt16LE(23, 2)
+  const packet = new Type(bytes)
+  assert(packet instanceof ActorControl)
+  assert.equal(packet.category, 23)
+  assert.equal(opcodes[102], undefined)
 })
 
 test('ResultDialog alias uses the common eight-parameter event-resume layout', () => {

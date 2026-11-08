@@ -1,13 +1,13 @@
 # elpis
 
-elpis holds the knowledge working with FFXIV data: game data files (SqPack), SeString, the network protocol (opcodes and packet structures), and memory signatures and memory structures.
+elpis holds the knowledge working with FFXIV data: game data files (SqPack), SeString, network packet structures, and memory signatures and memory structures.
 
 ## Packages
 
 | Package                  | Contents                                                                      |
 | ------------------------ | ----------------------------------------------------------------------------- |
 | `@ffcafe/elpis-struct`   | The `Struct` base class, field decorators, `FieldType` and field display metadata types |
-| `@ffcafe/elpis-network`  | Opcode tables, IPC packet structures, `PacketMap` and the opcode sync script  |
+| `@ffcafe/elpis-network`  | IPC packet structures, `PacketMap`, opcode types and local IPC registry generation  |
 | `@ffcafe/elpis-memory`   | Memory signatures, signature resolution and memory structures                 |
 | `@ffcafe/elpis-sqpack`   | SqPack reading and writing, EXL/EXH/EXD, LGB, textures and `Language`         |
 | `@ffcafe/elpis-sestring` | SeString parsing and formatting                                               |
@@ -56,22 +56,19 @@ pnpm lint
 pnpm test         # needs a build first
 ```
 
-### Syncing opcodes
+### Syncing IPC structures
 
 ```bash
 pnpm --filter @ffcafe/elpis-network sync
-pnpm --filter @ffcafe/elpis-network sync --packets /path/to/packets.yaml
 ```
 
-You can also run the sync from GitHub Actions: trigger the "Sync opcodes" workflow by hand.
+This updates the IPC registry from local declarations and `NormalizedOpcode` without fetching opcode data. Add new packet identifiers to `NormalizedOpcode` alongside their structures, then run the sync. You can also trigger the "Sync IPC structures" workflow by hand.
 
-Export one upstream version as a Mojito opcode component, without rewriting the TypeScript tables:
+Callers provide their own opcode mappings through `OpcodeMap`. `PacketMap`, the packet structures and opcode types remain available. For worker data, use the independent `@ffcafe/elpis-opcode-worker` reader; Mojito server generates profile components directly from the worker.
 
-```bash
-pnpm --filter @ffcafe/elpis-network sync --profile-version 7.57 --output opcodes.json
-```
+### Migrating to 0.2.0
 
-Import this JSON in the profile administration page to compare packet types and select new entries. The exporter uses the same name mappings and direction metadata as the normal sync; missing or conflicting directions fail the export. Test the resulting profile in Mojito before promoting it to release.
+`CNOpcode`, `GlobalOpcode`, bundled version tables and the profile opcode exporter have been removed. Supply opcode mappings through your application's configuration. The `sync` command only generates the local IPC registry.
 
 ### Verifying signatures in the game
 
@@ -86,7 +83,7 @@ node packages/memory/scripts/verify-signatures.mjs --addon <addon package direct
 
 ## Publishing to npm
 
-All five packages use the same version. Update their `version` fields together,
+All packages use the same version. Update their `version` fields together,
 run the checks, and push the version commit to `main`. Create a GitHub Release
 with a matching `vX.Y.Z` tag (or `vX.Y.Z-rc.1` for a prerelease). The published
 Release triggers `publish.yml`; ordinary pushes only run CI. Stable versions use

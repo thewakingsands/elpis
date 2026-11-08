@@ -1,10 +1,10 @@
-name: Sync opcodes
+name: Sync IPC structures
 
 on:
   workflow_dispatch:
 
 concurrency:
-  group: sync-opcodes
+  group: sync-ipc
 
 permissions:
   contents: write
@@ -34,11 +34,11 @@ jobs:
       - name: Commit changes
         run: |
           if [ -z "$(git status --porcelain)" ]; then
-            echo "No opcode changes"
+            echo "No IPC structure changes"
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          git commit -m 'chore(network): sync opcodes'
+          git commit -m 'chore(network): sync IPC structures'
           git push origin HEAD:main

@@ -43,6 +43,11 @@ for (const dir of readdirSync(packagesDir).sort()) {
   if (onlyEsm.length) fail(name, `only in ESM: ${onlyEsm.join(', ')}`)
 
   if (name === '@ffcafe/elpis-network') {
+    for (const key of ['CNOpcode', 'GlobalOpcode']) {
+      if (key in cjs || key in esm)
+        fail(name, `unexpected bundled opcode export: ${key}`)
+    }
+
     const payload = Buffer.alloc(24)
     payload.writeUInt16LE(23, 0)
     for (let i = 4; i < 24; i += 4) payload.writeUInt32LE(i * 0x1111, i)

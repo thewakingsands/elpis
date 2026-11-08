@@ -1,12 +1,8 @@
 import { execFileSync } from 'node:child_process'
-import { readFileSync, writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 export const codePath = join(import.meta.dirname, '..')
-
-export function readCode(path: string) {
-  return readFileSync(join(codePath, path), 'utf-8')
-}
 
 const biomeFormatCommand =
   process.platform === 'win32'

@@ -2,7 +2,6 @@ import assert from 'node:assert/strict'
 import { test } from 'vitest'
 import { PacketMap } from '../src/definitions/ipc'
 import { PlayerSetup } from '../src/definitions/ipc/player-setup'
-import { CN_7_56a } from '../src/opcode/cn-7.56a'
 import { FieldType, fieldLength, type Struct, type StructConstructor, getChildren, getFields } from '@ffcafe/elpis-struct'
 
 // All payloads are constructed from protocol boundaries, never from a capture.
@@ -10,7 +9,6 @@ const minimumLength = 2951
 
 test('PlayerSetup registry, minimum length and optional unknown tail', () => {
   assert.equal(PacketMap.PlayerSetup, PlayerSetup)
-  assert.deepEqual(CN_7_56a[0x0093], [{ type: 'PlayerSetup', outgoing: false }])
   assert.equal(PlayerSetup.byteLength, minimumLength)
   const packet = new PlayerSetup(Buffer.alloc(minimumLength))
   assert.equal(packet.unknownTail.length, 0)
