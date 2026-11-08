@@ -9,6 +9,7 @@ const packages = [
   'struct',
   'memory',
   'network',
+  'opcode-worker',
   'sestring',
   'sqpack',
   'texture',
