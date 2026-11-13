@@ -2,20 +2,58 @@ import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:f
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { afterEach, expect, test } from 'vitest'
+import { pathToFileURL } from 'node:url'
+import { afterEach, expect, test, vi } from 'vitest'
 import { tex } from './fixtures'
 
 const require = createRequire(import.meta.url)
 const cleanups: (() => Promise<void>)[] = []
-function isolated() {
+function isolated(parallelism = 4) {
   const directory = mkdtempSync(join(tmpdir(), 'elpis-texture-'))
   cpSync(require.resolve('../dist/index.cjs').replace(/index\.cjs$/, ''), directory, { recursive: true })
-  const api = require(join(directory, 'index.cjs'))
-  const pool = require(join(directory, 'coordinator.cjs'))
+  const cpu = vi.spyOn(require('node:os'), 'availableParallelism').mockReturnValue(parallelism)
+  let api, pool
+  try {
+    api = require(join(directory, 'index.cjs'))
+    pool = require(join(directory, 'coordinator.cjs'))
+  } finally { cpu.mockRestore() }
   cleanups.push(async () => { await pool.dispose(); rmSync(directory, { recursive: true, force: true }) })
   return { directory, api, pool }
 }
 afterEach(async () => { for (const cleanup of cleanups.splice(0)) await cleanup() })
+
+test.each([
+  [1, 1], [2, 1], [3, 1], [4, 2], [5, 2], [8, 4], [24, 12],
+])('%i available CPUs run %i workers with a shared bounded queue', async (parallelism, workers) => {
+  const { directory, api, pool } = isolated(parallelism)
+  const esm = await import(pathToFileURL(join(directory, 'index.mjs')).href)
+  expect(pool.inspect()).toMatchObject({ workers: 0, queued: 0, reserved: 0 })
+  const tasks = Array.from({ length: workers + 9 }, (_, index) => {
+    const consumer = index % 2 ? esm : api
+    if (index % 3 === 0) return consumer.decodeTex(tex())
+    if (index % 3 === 1) return consumer.formatTex(tex())
+    return consumer.composeMap(tex())
+  })
+  expect(pool.inspect()).toMatchObject({ workers, queued: 8, generation: workers })
+  const outcomes = await Promise.allSettled(tasks)
+  expect(outcomes.filter((result) => result.status === 'fulfilled')).toHaveLength(workers + 8)
+  expect(outcomes[workers + 8]).toMatchObject({ status: 'rejected', reason: { code: 'resource_limit' } })
+  expect(pool.inspect()).toMatchObject({ workers, queued: 0, reserved: 0, generation: workers })
+  expect((await api.decodeTex(tex())).data).toEqual(Buffer.from([10, 20, 30, 40, 70, 80, 90, 0]))
+  expect(pool.inspect().generation).toBe(workers)
+})
+
+test.each([1, 4, 12])('dispose rejects running and queued tasks at %i CPUs and permits reuse', async (parallelism) => {
+  const { api, pool } = isolated(parallelism)
+  const workers = Math.max(1, Math.floor(parallelism / 2))
+  const outcomes = Promise.allSettled(Array.from({ length: workers + 8 }, () => api.decodeTex(tex())))
+  expect(pool.inspect()).toMatchObject({ workers, queued: 8 })
+  await pool.dispose()
+  for (const outcome of await outcomes)
+    expect(outcome).toMatchObject({ status: 'rejected', reason: { code: 'worker_failed' } })
+  expect(pool.inspect()).toMatchObject({ workers: 0, queued: 0, reserved: 0 })
+  expect((await api.decodeTex(tex())).width).toBe(2)
+})
 
 test('import is lazy; byte admission is separate from task count; high-water workers recycle', async () => {
   const { api, pool } = isolated()
@@ -31,8 +69,9 @@ test('import is lazy; byte admission is separate from task count; high-water wor
   expect(pool.inspect().generation).toBeGreaterThan(generation)
 }, 20000)
 
-test.each(['missing', 'digest', 'abi'])('initialization %s rejects a whole batch without endless restarts', async (fault) => {
-  const { directory, api, pool } = isolated()
+test.each([1, 4, 12].flatMap((parallelism) => ['missing', 'digest', 'abi'].map((fault) => ({ parallelism, fault }))))('initialization $fault at $parallelism CPUs rejects a whole batch without endless restarts', async ({ parallelism, fault }) => {
+  const { directory, api, pool } = isolated(parallelism)
+  const workers = Math.max(1, Math.floor(parallelism / 2))
   const glue = join(directory, 'wasm/texture.js')
   if (fault === 'missing') rmSync(join(directory, 'wasm/texture_bg.wasm'))
   if (fault === 'digest') {
@@ -41,10 +80,10 @@ test.each(['missing', 'digest', 'abi'])('initialization %s rejects a whole batch
     writeFileSync(path, JSON.stringify(descriptor))
   }
   if (fault === 'abi') writeFileSync(glue, `${readFileSync(glue, 'utf8')}\nexports.abi_version = () => 999;`)
-  const results = await Promise.allSettled(Array.from({ length: 10 }, () => api.decodeTex(tex())))
+  const results = await Promise.allSettled(Array.from({ length: workers + 8 }, () => api.decodeTex(tex())))
   expect(results.every((result) => result.status === 'rejected' && result.reason.code === 'wasm_unavailable')).toBe(true)
   expect(pool.inspect()).toMatchObject({ reserved: 0, queued: 0, workers: 0 })
-  expect(pool.inspect().generation).toBeLessThanOrEqual(3)
+  expect(pool.inspect().generation).toBeLessThanOrEqual(workers + 1)
   cpSync(require.resolve('../dist/index.cjs').replace(/index\.cjs$/, 'wasm'), join(directory, 'wasm'), { recursive: true })
   expect((await api.decodeTex(tex())).width).toBe(2)
 })

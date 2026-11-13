@@ -107,17 +107,6 @@ test('input snapshot and independent output survive subsequent WASM growth', asy
   expect(another.data[0]).toBe(10)
 })
 
-test('mixed ESM/CJS consumers share the bounded queue and recover budgets', async () => {
-  const esm = await import('../dist/index.mjs')
-  const tasks = Array.from({ length: 11 }, (_, index) => (index % 2 ? esm : api).decodeTex(tex()))
-  expect(pool.inspect().workers).toBe(2)
-  expect(pool.inspect().queued).toBe(8)
-  const outcomes = await Promise.allSettled(tasks)
-  expect(outcomes.filter((result) => result.status === 'fulfilled')).toHaveLength(10)
-  expect(outcomes[10]).toMatchObject({ status: 'rejected', reason: { code: 'resource_limit' } })
-  expect(pool.inspect().reserved).toBe(0)
-})
-
 test('WASM execution leaves main-thread timers responsive and idle workers permit exit', async () => {
   let ticks = 0
   const timer = setInterval(() => ticks++, 1)

@@ -1,3 +1,4 @@
+import { availableParallelism } from 'node:os'
 import { join } from 'node:path'
 import { Worker } from 'node:worker_threads'
 import { codes, failure } from './errors'
@@ -28,6 +29,7 @@ interface Slot {
   task?: Task
   dead: boolean
 }
+const maxWorkers = Math.max(1, Math.floor(availableParallelism() / 2))
 const queue: Task[] = []
 const slots = new Set<Slot>()
 let sequence = 0
@@ -84,7 +86,7 @@ function message(slot: Slot, value: any) {
     settle(slot, failure(value.code, value.message))
     if (value.code === 'wasm_unavailable') {
       initializationFailures++
-      // At most two attempts per failed batch; no queue-sized restart loop.
+      // Stop retrying queued tasks after two initialization failures.
       if (initializationFailures >= 2) {
         for (const pending of queue.splice(0)) {
           reserved -= pending.reservation
@@ -128,7 +130,7 @@ function dispatch() {
   while (queue.length > 0) {
     let slot = [...slots].find((candidate) => !candidate.task)
     if (!slot) {
-      if (slots.size >= 2) return
+      if (slots.size >= maxWorkers) return
       try {
         const worker = new Worker(join(__dirname, 'worker.cjs'))
         slot = { worker, generation: ++generation, dead: false }
