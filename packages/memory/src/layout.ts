@@ -21,6 +21,8 @@ export const pointerOffsets = {
   networkModuleServerTime: 0xb54,
   /** `Framework.UIModule` */
   frameworkUiModule: 0x2b68,
+  /** `Framework.ClientLanguage`, the text language the client started with */
+  frameworkClientLanguage: 0x580,
   /** `UIModule.RaptureLogModule`, embedded. */
   uiModuleLogModule: 0x1ac0,
   /** `GroupManager.MainGroup`, embedded. */
