@@ -23,7 +23,7 @@ function isolated(parallelism = 4) {
 afterEach(async () => { for (const cleanup of cleanups.splice(0)) await cleanup() })
 
 test.each([
-  [1, 1], [2, 1], [3, 1], [4, 2], [5, 2], [8, 4], [24, 12],
+  [1, 1], [2, 1], [3, 1], [4, 2], [5, 2], [8, 4], [15, 7], [16, 8], [17, 8], [24, 8], [32, 8], [64, 8],
 ])('%i available CPUs run %i workers with a shared bounded queue', async (parallelism, workers) => {
   const { directory, api, pool } = isolated(parallelism)
   const esm = await import(pathToFileURL(join(directory, 'index.mjs')).href)
@@ -43,9 +43,8 @@ test.each([
   expect(pool.inspect().generation).toBe(workers)
 })
 
-test.each([1, 4, 12])('dispose rejects running and queued tasks at %i CPUs and permits reuse', async (parallelism) => {
+test.each([[1, 1], [4, 2], [12, 6], [32, 8]])('dispose rejects running and queued tasks at %i CPUs with %i workers and permits reuse', async (parallelism, workers) => {
   const { api, pool } = isolated(parallelism)
-  const workers = Math.max(1, Math.floor(parallelism / 2))
   const outcomes = Promise.allSettled(Array.from({ length: workers + 8 }, () => api.decodeTex(tex())))
   expect(pool.inspect()).toMatchObject({ workers, queued: 8 })
   await pool.dispose()
@@ -69,9 +68,8 @@ test('import is lazy; byte admission is separate from task count; high-water wor
   expect(pool.inspect().generation).toBeGreaterThan(generation)
 }, 20000)
 
-test.each([1, 4, 12].flatMap((parallelism) => ['missing', 'digest', 'abi'].map((fault) => ({ parallelism, fault }))))('initialization $fault at $parallelism CPUs rejects a whole batch without endless restarts', async ({ parallelism, fault }) => {
+test.each([[1, 1], [4, 2], [12, 6], [32, 8]].flatMap(([parallelism, workers]) => ['missing', 'digest', 'abi'].map((fault) => ({ parallelism, workers, fault }))))('initialization $fault at $parallelism CPUs rejects a whole batch without endless restarts', async ({ parallelism, workers, fault }) => {
   const { directory, api, pool } = isolated(parallelism)
-  const workers = Math.max(1, Math.floor(parallelism / 2))
   const glue = join(directory, 'wasm/texture.js')
   if (fault === 'missing') rmSync(join(directory, 'wasm/texture_bg.wasm'))
   if (fault === 'digest') {

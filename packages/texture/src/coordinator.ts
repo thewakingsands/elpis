@@ -29,7 +29,10 @@ interface Slot {
   task?: Task
   dead: boolean
 }
-const maxWorkers = Math.max(1, Math.floor(availableParallelism() / 2))
+const maxWorkers = Math.max(
+  1,
+  Math.min(8, Math.floor(availableParallelism() / 2)),
+)
 const queue: Task[] = []
 const slots = new Set<Slot>()
 let sequence = 0
