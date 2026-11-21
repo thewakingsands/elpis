@@ -53,6 +53,26 @@ test.each([
   expect(png.data).toEqual(Buffer.from(expected))
 })
 
+test.each([
+  { first: 255, second: 0, alphas: [255, 0, 218, 182, 145, 109, 72, 36] },
+  { first: 0, second: 255, alphas: [0, 255, 51, 102, 153, 204, 0, 255] },
+])('BC3 uses all 48 alpha-index bits ($first, $second)', async ({ first, second, alphas }) => {
+  // The six index bytes encode 0 through 7 twice, including indices above bit 31.
+  const block = Buffer.from([first, second, 0x88, 0xc6, 0xfa, 0x88, 0xc6, 0xfa, 0, 0xf8, 0, 0, 0, 0, 0, 0])
+  const width = 7
+  const height = 5
+  const input = tex(0x3431, width, height, Buffer.concat([block, block, block, block]))
+  const expected = Buffer.from(
+    Array.from({ length: width * height }, (_, pixel) => {
+      const x = (pixel % width) % 4
+      const y = Math.floor(pixel / width) % 4
+      return [255, 0, 0, alphas[(y * 4 + x) % 8]]
+    }).flat(),
+  )
+  expect((await api.decodeTex(input)).data).toEqual(expected)
+  expect(PNG.sync.read((await api.formatTex(input)).data).data).toEqual(expected)
+})
+
 test('Promise-only validation, plain data options and explicit PNG', async () => {
   expect(() => api.decodeTex('bad').catch(() => {})).not.toThrow()
   await expect(api.decodeTex(new Uint8Array(80))).rejects.toMatchObject({ code: 'invalid_argument' })
