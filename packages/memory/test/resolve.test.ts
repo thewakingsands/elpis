@@ -3,6 +3,7 @@ import { expect, test } from 'vitest'
 import {
   type MemorySignatureName,
   memorySignatures,
+  memoryDisplacementOffset,
   resolveSignature,
   resolveSignatures,
 } from '../src'
@@ -74,7 +75,7 @@ function plantAll(memory: Buffer, skip?: MemorySignatureName) {
   names.forEach((name, i) => {
     if (name === skip) return
     const target = fakeBase + 0x8000 + i * 0x100
-    plantSignature(memory, 0x100 + i * 0x80, memorySignatures[name], target)
+    plantSignature(memory, 0x100 + i * 0x80, memorySignatures[name], target, memoryDisplacementOffset(name))
     expected[name] = target
   })
   return expected

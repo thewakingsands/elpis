@@ -1,6 +1,7 @@
 import {
   type MemoryAddresses,
   type MemorySignatureName,
+  memoryDisplacementOffset,
   memorySignatures,
   optionalMemorySignatures,
 } from './signatures'
@@ -19,20 +20,20 @@ export interface MemorySource {
 }
 
 /**
- * The address a signature points at: the target of the displacement that
- * follows its matches. Only the code of the game executable is searched.
+ * Resolves the signed RIP-relative displacement at the configured operand position.
+ * Only the code of the game executable is searched.
  */
 export async function resolveSignature(
   source: MemorySource,
   name: MemorySignatureName,
 ): Promise<number> {
   const pattern = memorySignatures[name]
-  const length = pattern.split(' ').length
+  const operand = memoryDisplacementOffset(name)
   const matches = await source.scan(pattern, { protection: 'executable' })
 
   const targets = new Set(
     matches.map((match) => {
-      const displacement = match + length
+      const displacement = match + operand
       return displacement + 4 + source.read(displacement, 4).readInt32LE(0)
     }),
   )

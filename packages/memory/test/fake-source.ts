@@ -42,9 +42,10 @@ export function plantSignature(
   offset: number,
   pattern: string,
   target: number,
+  displacementOffset = pattern.split(' ').length,
 ) {
   const bytes = pattern.split(' ').map((byte) => (byte === '??' ? 0 : Number.parseInt(byte, 16)))
   memory.set(bytes, offset)
-  const displacement = offset + bytes.length
+  const displacement = offset + displacementOffset
   memory.writeInt32LE(target - (fakeBase + displacement + 4), displacement)
 }

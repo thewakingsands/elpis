@@ -1,8 +1,7 @@
 /**
  * Where the game keeps what the memory reader wants, for 7.57.
  *
- * Each pattern is the code right before a RIP-relative 32-bit displacement;
- * the address that displacement points at is the one wanted.
+ * The RIP-relative operand position is given by memoryDisplacementOffset.
  */
 export const memorySignatures = {
   /** The object table, pointers to the characters around the player. */
@@ -25,17 +24,25 @@ export const memorySignatures = {
    * `48 8D 0D ?? ?? ?? ?? 66 2B D8`, cut to end at the displacement.
    */
   conditions: '48 8B F9 B8 E8 03 00 00 45 33 C0 48 8D 0D',
+  /** RIP-relative address in UIState.Instance, with its trailing instructions for uniqueness. */
+  uiState:
+    '48 8D 0D ?? ?? ?? ?? 45 33 C0 BA ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? BA',
 } as const
 
 export type MemorySignatureName = keyof typeof memorySignatures
 
+export function memoryDisplacementOffset(name: MemorySignatureName): number {
+  return name === 'uiState' ? 3 : memorySignatures[name].split(' ').length
+}
+
 /** Signatures a reader can do without: it skips what they point at when they fail to resolve. */
 export const optionalMemorySignatures: readonly MemorySignatureName[] = [
   'conditions',
+  'uiState',
 ]
 
 /** The address each signature resolves to in a running game; the optional ones may be missing. */
 export type MemoryAddresses = Record<
-  Exclude<MemorySignatureName, 'conditions'>,
+  Exclude<MemorySignatureName, 'conditions' | 'uiState'>,
   number
-> & { conditions?: number }
+> & { conditions?: number; uiState?: number }
